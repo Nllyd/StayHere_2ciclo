@@ -1,17 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.views import View
-from .models import Usuario, Alojamiento, ImagenAlojamiento
+from .models import Usuario, Alojamiento, ImagenAlojamiento, AdminPermissions
 from django.db import IntegrityError
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
-
 
 def logout_view(request):
     logout(request)
@@ -138,7 +137,16 @@ def arrendador_profile_view(request, id):
     alojamientos = Alojamiento.objects.filter(usuario=usuario)
     return render(request, 'myapp/arrendador_profile.html', {'usuario': usuario, 'alojamientos': alojamientos})
 
+# ADMINISTRADOR
 
+# Decorador para restringir acceso solo a superusuarios
+def superuser_required(view_func):
+    decorated_view_func = user_passes_test(lambda user: user.is_superuser)(view_func)
+    return decorated_view_func
+
+# Vistas Administrativas
+
+@superuser_required
 def admin_users_view(request):
     usuarios = Usuario.objects.all()
     context = {
@@ -146,9 +154,15 @@ def admin_users_view(request):
     }
     return render(request, 'myapp/admin_users.html', context)
 
+@superuser_required
 def actualizar_usuario(request):
     if request.method == 'POST':
         usuario_id = request.POST.get('id')
+
+        # Verificar si el usuario tiene permiso para editar usuarios
+        if not request.user.admin_permissions.can_edit_users:
+            return HttpResponseForbidden("No tienes permiso para editar usuarios.")
+
         nombre = request.POST.get('nombre')
         email = request.POST.get('email')
         telefono = request.POST.get('telefono')
@@ -173,9 +187,15 @@ def actualizar_usuario(request):
 
     return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
 
+@superuser_required
 def eliminar_usuario(request):
     if request.method == 'POST':
         usuario_id = request.POST.get('id')
+
+        # Verificar si el usuario tiene permiso para eliminar usuarios
+        if not request.user.admin_permissions.can_delete_users:
+            return HttpResponseForbidden("No tienes permiso para eliminar usuarios.")
+
         try:
             usuario = Usuario.objects.get(id=usuario_id)
             usuario.delete()
@@ -185,6 +205,7 @@ def eliminar_usuario(request):
 
     return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
 
+@superuser_required
 def admin_habitaciones_view(request):
     alojamientos = Alojamiento.objects.all()
     context = {
@@ -192,8 +213,8 @@ def admin_habitaciones_view(request):
     }
     return render(request, 'myapp/admin_habitaciones.html', context)
 
+@superuser_required
 def admin_control(request):
-
     registros_por_mes = (
         Usuario.objects.annotate(month=TruncMonth('date_joined'))
         .values('month')
@@ -211,5 +232,10 @@ def admin_control(request):
 
     return render(request, 'myapp/admin_control.html', context)
 
-def admin_permisos (request):
-    return render(request, 'myapp/admin_permisos.html')
+@superuser_required
+def admin_permisos(request):
+    administradores = Usuario.objects.filter(is_superuser=True).select_related('admin_permissions')
+    context = {
+        'administradores': administradores
+    }
+    return render(request, 'myapp/admin_permisos.html', context)

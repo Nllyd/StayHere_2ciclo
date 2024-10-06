@@ -135,10 +135,10 @@
     </header>
 
     <div class="sidebar" id="sidebar">
-        <a href="#"><i class="fas fa-users"></i> Usuarios</a>
-        <a href="#"><i class="fas fa-home"></i> Alojamientos</a>
-        <a href="#"><i class="fas fa-chart-line"></i> Control</a>
-        <a href="#"><i class="fas fa-user-shield"></i> Administradores</a>
+        <a href="{% url 'admin_users' %}"><i class="fas fa-users"></i> Usuarios</a>
+        <a href="{% url 'admin_habitaciones' %}"><i class="fas fa-home"></i> Alojamientos</a>
+        <a href="{% url 'admin_control' %}"><i class="fas fa-chart-line"></i> Control</a>
+        <a href="{% url 'admin_permisos' %}"><i class="fas fa-user-shield"></i> Administradores</a>
     </div>
 
     <main>

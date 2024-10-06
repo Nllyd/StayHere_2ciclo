@@ -170,10 +170,10 @@
     </header>
 
     <div class="sidebar" id="sidebar">
-        <a href="#"><i class="fas fa-users"></i> Usuarios</a>
-        <a href="#"><i class="fas fa-home"></i> Alojamientos</a>
-        <a href="#"><i class="fas fa-chart-line"></i> Control</a>
-        <a href="#"><i class="fas fa-user-shield"></i> Administradores</a>
+        <a href="{% url 'admin_users' %}"><i class="fas fa-users"></i> Usuarios</a>
+        <a href="{% url 'admin_habitaciones' %}"><i class="fas fa-home"></i> Alojamientos</a>
+        <a href="{% url 'admin_control' %}"><i class="fas fa-chart-line"></i> Control</a>
+        <a href="{% url 'admin_permisos' %}"><i class="fas fa-user-shield"></i> Administradores</a>
     </div>
 
     <main>
@@ -202,7 +202,17 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Los datos se insertarán aquí dinámicamente -->
+                {% for administrador in administradores %}
+                    <tr>
+                        <td>{{ administrador.id }}</td>
+                        <td>{{ administrador.username }}</td>
+                        <td>{{ administrador.admin_permissions.can_edit_users|yesno:"Sí,No" }}</td>
+                        <td>{{ administrador.admin_permissions.can_delete_users|yesno:"Sí,No" }}</td>
+                        <td>{{ administrador.admin_permissions.can_edit_alojamientos|yesno:"Sí,No" }}</td>
+                        <td>{{ administrador.admin_permissions.can_delete_alojamientos|yesno:"Sí,No" }}</td>
+                        <td>{{ administrador.admin_permissions.can_grant_permissions|yesno:"Sí,No" }}</td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </main>
@@ -214,11 +224,11 @@
 
         menuButton.addEventListener('click', () => {
             if (sidebarVisible) {
-                sidebar.style.right = '-220px'; // Ocultar la barra lateral
-                menuButton.innerHTML = '<i class="fas fa-bars"></i>'; // Cambiar a icono de menú
+                sidebar.style.right = '-220px';
+                menuButton.innerHTML = '<i class="fas fa-bars"></i>';
             } else {
-                sidebar.style.right = '10px'; // Mostrar la barra lateral
-                menuButton.innerHTML = '<i class="fas fa-times"></i>'; // Cambiar a icono de X
+                sidebar.style.right = '10px';
+                menuButton.innerHTML = '<i class="fas fa-times"></i>';
             }
             sidebarVisible = !sidebarVisible;
         });

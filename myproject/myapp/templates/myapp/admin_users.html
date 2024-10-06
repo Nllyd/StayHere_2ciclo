@@ -177,7 +177,12 @@
             background-color: #B96565;
         }
 
-        .acciones button:hover {
+        .deshabilitado {
+            background-color: #b3b3b3;
+            cursor: not-allowed;
+        }
+
+        .acciones button:hover:not(.deshabilitado) {
             opacity: 0.9;
         }
 
@@ -283,8 +288,8 @@
                     <td>{{ usuario.is_active|yesno:"Sí,No" }}</td>
                     <td>{{ usuario.is_admin|yesno:"Sí,No" }}</td>
                     <td class="acciones">
-                        <button class="editar" onclick="abrirModal({{ usuario.id }}, '{{ usuario.nombre }}', '{{ usuario.email }}', '{{ usuario.telefono }}', {{ usuario.edad }}, '{{ usuario.is_active }}', '{{ usuario.is_admin }}')">Editar</button>
-                        <button class="eliminar" onclick="eliminarUsuario({{ usuario.id }})">Eliminar</button>
+                        <button class="editar {% if not user.admin_permissions.can_edit_users %}deshabilitado{% endif %}" onclick="abrirModal({{ usuario.id }}, '{{ usuario.nombre }}', '{{ usuario.email }}', '{{ usuario.telefono }}', {{ usuario.edad }}, '{{ usuario.is_active }}', '{{ usuario.is_admin }}')" {% if not user.admin_permissions.can_edit_users %}disabled{% endif %}>Editar</button>
+                        <button class="eliminar {% if not user.admin_permissions.can_delete_users %}deshabilitado{% endif %}" onclick="eliminarUsuario({{ usuario.id }})" {% if not user.admin_permissions.can_delete_users %}disabled{% endif %}>Eliminar</button>
                     </td>
                 </tr>
                 {% empty %}
@@ -317,10 +322,10 @@
     </main>
 
     <div class="sidebar" id="sidebar">
-        <a href="#"><i class="fas fa-users"></i> Usuarios</a>
-        <a href="#"><i class="fas fa-home"></i> Alojamientos</a>
-        <a href="#"><i class="fas fa-chart-line"></i> Control</a>
-        <a href="#"><i class="fas fa-user-shield"></i> Administradores</a>
+        <a href="{% url 'admin_users' %}"><i class="fas fa-users"></i> Usuarios</a>
+        <a href="{% url 'admin_habitaciones' %}"><i class="fas fa-home"></i> Alojamientos</a>
+        <a href="{% url 'admin_control' %}"><i class="fas fa-chart-line"></i> Control</a>
+        <a href="{% url 'admin_permisos' %}"><i class="fas fa-user-shield"></i> Administradores</a>
     </div>
 
     <script>

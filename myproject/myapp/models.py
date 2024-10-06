@@ -68,3 +68,13 @@ class ImagenAlojamiento(models.Model):
     def __str__(self):
         return f"Imagen de {self.alojamiento.nombre}"
 
+class AdminPermissions(models.Model):
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='admin_permissions')
+    can_edit_users = models.BooleanField(default=False)
+    can_delete_users = models.BooleanField(default=False)
+    can_edit_alojamientos = models.BooleanField(default=False)
+    can_delete_alojamientos = models.BooleanField(default=False)
+    can_grant_permissions = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Permisos de {self.usuario.email}"
