@@ -16,5 +16,7 @@ urlpatterns = [
     path('admin_users/', views.admin_users_view, name='admin_users'),
     path('admin_users/actualizar/', views.actualizar_usuario, name='actualizar_usuario'),
     path('admin_users/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),
-    path('admin_habitaciones/', views.admin_habitaciones_view, name='admin_habitaciones')
+    path('admin_habitaciones/', views.admin_habitaciones_view, name='admin_habitaciones'),
+    path('admin_control/', views.admin_control, name='admin_control'),
+    path('admin_permisos/', views.admin_permisos, name='admin_permisos')
 ]

@@ -1,0 +1,199 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inria Sans', sans-serif;
+        }
+
+        header {
+            background-color: #212F38;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        header img {
+            max-height: 40px;
+        }
+
+        .sidebar {
+            background-color: #212F38;
+            width: 200px;
+            position: fixed;
+            top: 120px; 
+            right: -220px; 
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; 
+            padding: 10px;
+            transition: right 0.3s ease-in-out;
+            z-index: 2;
+            border-radius: 20px; 
+            padding-bottom: 20px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            background-color: #2A3B46; 
+            color: white; 
+            text-decoration: none;
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border-radius: 20px; 
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a i {
+            margin-right: 10px; 
+        }
+
+        .sidebar a:hover {
+            background-color: #3C4B55;
+        }
+
+        .menu-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 3;
+            transition: background-color 0.3s;
+        }
+
+        .menu-button:hover {
+            background-color: #444;
+        }
+
+        main {
+            margin-top: 120px;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .dashboard {
+            background-color: #e7e7e7;
+            width: 600px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .dashboard:hover {
+            transform: translateY(-10px);
+        }
+
+        .dashboard h2 {
+            font-size: 24px;
+            color: #212F38;
+            font-family: 'Inria Sans', sans-serif;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-button" id="menuButton">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <header>
+        <img src="{% static 'myapp/images/StayPandaHere.png' %}" alt="StayPandaHere">
+    </header>
+
+    <div class="sidebar" id="sidebar">
+        <a href="#"><i class="fas fa-users"></i> Usuarios</a>
+        <a href="#"><i class="fas fa-home"></i> Alojamientos</a>
+        <a href="#"><i class="fas fa-chart-line"></i> Control</a>
+        <a href="#"><i class="fas fa-user-shield"></i> Administradores</a>
+    </div>
+
+    <main>
+        <div class="dashboard">
+            <h2>Registros por Mes</h2>
+            <canvas id="registrosChart"></canvas>
+        </div>
+    </main>
+
+    <script>
+        const menuButton = document.getElementById('menuButton');
+        const sidebar = document.getElementById('sidebar');
+        let sidebarVisible = false;
+
+        menuButton.addEventListener('click', () => {
+            if (sidebarVisible) {
+                sidebar.style.right = '-220px'; // Ocultar la barra lateral
+                menuButton.innerHTML = '<i class="fas fa-bars"></i>'; // Cambiar a icono de menú
+            } else {
+                sidebar.style.right = '10px'; // Mostrar la barra lateral
+                menuButton.innerHTML = '<i class="fas fa-times"></i>'; // Cambiar a icono de X
+            }
+            sidebarVisible = !sidebarVisible;
+        });
+
+        // Datos del contexto enviados desde Django
+        const labels = JSON.parse('{{ labels|escapejs }}');
+        const data = JSON.parse('{{ data|escapejs }}');
+
+        // Configuración del gráfico de registros
+        const registrosConfig = {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Registros por Mes',
+                    data: data,
+                    backgroundColor: '#42C690'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Crear el gráfico de registros
+        const registrosChart = new Chart(
+            document.getElementById('registrosChart'),
+            registrosConfig
+        );
+    </script>
+</body>
+</html>

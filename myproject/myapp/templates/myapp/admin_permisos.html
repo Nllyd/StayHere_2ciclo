@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Alojamientos</title>
+    <title>Admin Permisos</title>
     <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -155,30 +155,8 @@
             background-color: #f2f2f2;
         }
 
-        .acciones {
-            display: flex;
-            gap: 10px;
-        }
-
-        .acciones button {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .editar {
-            background-color: #85B965;
-        }
-
-        .eliminar {
-            background-color: #B96565;
-        }
-
-        .acciones button:hover {
-            opacity: 0.9;
+        .subdivision {
+            text-align: center;
         }
     </style>
 </head>
@@ -191,55 +169,43 @@
         <img src="{% static 'myapp/images/StayPandaHere.png' %}" alt="StayPandaHere">
     </header>
 
-    <main>
-        <div class="content-title">
-            <b>Alojamientos</b>
-            <div class="vertical-line"></div>
-            <div class="search-section">
-                <label for="buscar-alojamientos">Buscar Alojamientos</label>
-                <input type="text" id="buscar-alojamientos" name="buscar-alojamientos" onkeyup="filtrarTabla()">
-            </div>
-        </div>
-
-        <table id="tabla-alojamientos">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Latitud</th>
-                    <th>Longitud</th>
-                    <th>Características</th>
-                    <th>Propietario</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for alojamiento in alojamientos %}
-                <tr>
-                    <td>{{ alojamiento.id }}</td>
-                    <td>{{ alojamiento.nombre }}</td>
-                    <td>{{ alojamiento.descripcion }}</td>
-                    <td>{{ alojamiento.precio }}</td>
-                    <td>{{ alojamiento.latitud }}</td>
-                    <td>{{ alojamiento.longitud }}</td>
-                    <td>{{ alojamiento.caracteristicas }}</td>
-                    <td>{{ alojamiento.usuario.nombre }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8">No hay alojamientos disponibles.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
     <div class="sidebar" id="sidebar">
-        <a href="#"><i class="fas fa-users"></i> alojamientos</a>
+        <a href="#"><i class="fas fa-users"></i> Usuarios</a>
         <a href="#"><i class="fas fa-home"></i> Alojamientos</a>
         <a href="#"><i class="fas fa-chart-line"></i> Control</a>
         <a href="#"><i class="fas fa-user-shield"></i> Administradores</a>
     </div>
+
+    <main>
+        <div class="content-title">
+            <b>Administradores</b>
+            <div class="vertical-line"></div>
+            <div class="search-section">
+                <label for="buscar-administradores">Buscar Administradores</label>
+                <input type="text" id="buscar-administradores" name="buscar-administradores" onkeyup="filtrarTabla()">
+            </div>
+        </div>
+
+        <table id="tabla-administradores">
+            <thead>
+                <tr>
+                    <th rowspan="2">ID</th>
+                    <th rowspan="2">Nombre</th>
+                    <th colspan="5" class="subdivision">Permisos</th>
+                </tr>
+                <tr>
+                    <th>Editar Usuarios</th>
+                    <th>Eliminar Usuarios</th>
+                    <th>Editar Alojamientos</th>
+                    <th>Eliminar Alojamientos</th>
+                    <th>Ceder Permisos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se insertarán aquí dinámicamente -->
+            </tbody>
+        </table>
+    </main>
 
     <script>
         const menuButton = document.getElementById('menuButton');
@@ -258,18 +224,16 @@
         });
 
         function filtrarTabla() {
-            let input = document.getElementById('buscar-alojamientos');
+            let input = document.getElementById('buscar-administradores');
             let filter = input.value.toLowerCase();
-            let table = document.getElementById('tabla-alojamientos');
+            let table = document.getElementById('tabla-administradores');
             let tr = table.getElementsByTagName('tr');
 
-            for (let i = 1; i < tr.length; i++) {
+            for (let i = 2; i < tr.length; i++) {
                 let tdNombre = tr[i].getElementsByTagName('td')[1];
-                let tdDescripcion = tr[i].getElementsByTagName('td')[2];
-                if (tdNombre || tdDescripcion) {
+                if (tdNombre) {
                     let txtValueNombre = tdNombre.textContent || tdNombre.innerText;
-                    let txtValueDescripcion = tdDescripcion.textContent || tdDescripcion.innerText;
-                    if (txtValueNombre.toLowerCase().indexOf(filter) > -1 || txtValueDescripcion.toLowerCase().indexOf(filter) > -1) {
+                    if (txtValueNombre.toLowerCase().indexOf(filter) > -1) {
                         tr[i].style.display = "";
                     } else {
                         tr[i].style.display = "none";

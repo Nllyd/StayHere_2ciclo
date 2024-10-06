@@ -8,6 +8,10 @@ from .models import Usuario, Alojamiento, ImagenAlojamiento
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import json
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
+
 
 def logout_view(request):
     logout(request)
@@ -182,4 +186,30 @@ def eliminar_usuario(request):
     return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
 
 def admin_habitaciones_view(request):
-    return render(request, 'myapp/admin_habitaciones.html')
+    alojamientos = Alojamiento.objects.all()
+    context = {
+        'alojamientos': alojamientos
+    }
+    return render(request, 'myapp/admin_habitaciones.html', context)
+
+def admin_control(request):
+
+    registros_por_mes = (
+        Usuario.objects.annotate(month=TruncMonth('date_joined'))
+        .values('month')
+        .annotate(total=Count('id'))
+        .order_by('month')
+    )
+
+    labels = [registro['month'].strftime("%B") for registro in registros_por_mes]
+    data = [registro['total'] for registro in registros_por_mes]
+
+    context = {
+        'labels': json.dumps(labels),
+        'data': json.dumps(data),
+    }
+
+    return render(request, 'myapp/admin_control.html', context)
+
+def admin_permisos (request):
+    return render(request, 'myapp/admin_permisos.html')
