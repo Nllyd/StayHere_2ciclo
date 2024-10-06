@@ -1,0 +1,283 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Users</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inria Sans', sans-serif;
+        }
+
+        header {
+            background-color: #212F38;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        header img {
+            max-height: 40px;
+        }
+
+        .sidebar {
+            background-color: #212F38;
+            width: 200px;
+            position: fixed;
+            top: 120px; 
+            right: -220px; 
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; 
+            padding: 10px;
+            transition: right 0.3s ease-in-out;
+            z-index: 2;
+            border-radius: 20px; 
+            padding-bottom: 20px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            background-color: #2A3B46; 
+            color: white; 
+            text-decoration: none;
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border-radius: 20px; 
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a i {
+            margin-right: 10px; 
+        }
+
+        .sidebar a:hover {
+            background-color: #3C4B55;
+        }
+
+        .menu-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 3;
+            transition: background-color 0.3s;
+        }
+
+        .menu-button:hover {
+            background-color: #444;
+        }
+
+        main {
+            margin-top: 120px;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .content-title {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        .content-title b {
+            color: #DE5D5D;
+            margin-right: 10px;
+        }
+
+        .vertical-line {
+            border-left: 2px solid #DE5D5D;
+            height: 40px;
+            margin: 0 10px;
+        }
+
+        .search-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-section label {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .search-section input[type="text"] {
+            padding: 5px;
+            font-size: 16px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 10px;
+        }
+
+        .acciones button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .editar {
+            background-color: #85B965;
+        }
+
+        .eliminar {
+            background-color: #B96565;
+        }
+
+        .acciones button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-button" id="menuButton">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <header>
+        <img src="{% static 'myapp/images/StayPandaHere.png' %}" alt="StayPandaHere">
+    </header>
+
+    <main>
+        <div class="content-title">
+            <b>Alojamientos</b>
+            <div class="vertical-line"></div>
+            <div class="search-section">
+                <label for="buscar-usuarios">Buscar Alojamientos</label>
+                <input type="text" id="buscar-usuarios" name="buscar-usuarios" onkeyup="filtrarTabla()">
+            </div>
+        </div>
+
+        <table id="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Latitud</th>
+                    <th>Longitud</th>
+                    <th>Características</th>
+                    <th>Propietario</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario.id }}</td>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.descripcion }}</td>
+                    <td>{{ usuario.precio }}</td>
+                    <td>{{ usuario.latitud }}</td>
+                    <td>{{ usuario.longitud }}</td>
+                    <td>{{ usuario.caracteristicas }}</td>
+                    <td>{{ usuario.propietario }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">No hay usuarios disponibles.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <div class="sidebar" id="sidebar">
+        <a href="#"><i class="fas fa-users"></i> Usuarios</a>
+        <a href="#"><i class="fas fa-home"></i> Alojamientos</a>
+        <a href="#"><i class="fas fa-chart-line"></i> Control</a>
+        <a href="#"><i class="fas fa-user-shield"></i> Administradores</a>
+    </div>
+
+    <script>
+        const menuButton = document.getElementById('menuButton');
+        const sidebar = document.getElementById('sidebar');
+        let sidebarVisible = false;
+
+        menuButton.addEventListener('click', () => {
+            if (sidebarVisible) {
+                sidebar.style.right = '-220px'; // Ocultar la barra lateral
+                menuButton.innerHTML = '<i class="fas fa-bars"></i>'; // Cambiar a icono de menú
+            } else {
+                sidebar.style.right = '10px'; // Mostrar la barra lateral
+                menuButton.innerHTML = '<i class="fas fa-times"></i>'; // Cambiar a icono de X
+            }
+            sidebarVisible = !sidebarVisible;
+        });
+
+        function filtrarTabla() {
+            let input = document.getElementById('buscar-usuarios');
+            let filter = input.value.toLowerCase();
+            let table = document.getElementById('tabla-usuarios');
+            let tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let tdNombre = tr[i].getElementsByTagName('td')[1];
+                let tdDescripcion = tr[i].getElementsByTagName('td')[2];
+                if (tdNombre || tdDescripcion) {
+                    let txtValueNombre = tdNombre.textContent || tdNombre.innerText;
+                    let txtValueDescripcion = tdDescripcion.textContent || tdDescripcion.innerText;
+                    if (txtValueNombre.toLowerCase().indexOf(filter) > -1 || txtValueDescripcion.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

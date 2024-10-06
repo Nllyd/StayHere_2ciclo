@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habitaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.css"/>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'myapp/css/habitaciones.css' %}">
+    <link rel="stylesheet" href="{% static 'myapp/css/myfonts.css' %}">
+    <style>
+        .circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+        }
+        .circle img {
+            width: 100%;
+            height: auto;
+        }
+        .edit-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            height: 30%;
+            background-color: #21614c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .profile-info p {
+            font-size: 12px;
+            margin: 5px 0;
+        }
+        .alojamiento-card {
+            width: 18%;
+            margin: 1%;
+            float: left;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        .no-alojamientos {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .card {
+            width: 370px;
+            height: 490px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .photo {
+            width: 100%;
+            height: 250px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+        }
+        .characteristic-bubble {
+            display: inline-block;
+            background-color: #e0f7fa;
+            color: #00796b;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 2px;
+            font-size: 16px;
+        }
+        .slider-container {
+            margin-top: 30px;
+        }
+        .rounded-bg-white {
+            background-color: white;
+            padding: 10px;
+            padding-top: 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+            color: black;
+            min-height: 60px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <img id="header-image" src="{% static 'myapp/images/StayPandaHere.png' %}" alt="Logo">
+        <button class="menu-toggle">&#9776;</button> <!-- Ícono de menú -->
+    </header>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <button class="close-btn" id="close-button">&times;</button> <!-- Botón cerrar -->
+        <ul>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'user' %}" class="semilight" style="font-size: 14px; text-align: left;">Mi perfil</a></li> <!-- Nuevo enlace -->
+                <li><a href="{% url 'nuevo' %}" class="semilight" style="font-size: 14px; text-align: left;">Ofrecer Habitaciones</a></li>
+                <li><a href="{% url 'home' %}" class="semilight" style="font-size: 14px; text-align: left;">Buscar Habitacion</a></li>
+                <li><a href="{% url 'logout' %}" class="semilight" style="font-size: 14px; text-align: left;">Cerrar Sesion</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}" class="semilight" style="font-size: 14px; text-align: left;">Iniciar Sesion</a></li>
+                <li><a href="{% url 'alert' %}" class="semilight" style="font-size: 14px; text-align: left;">Ofrecer Habitaciones</a></li>
+                <li><a href="{% url 'home' %}" class="semilight" style="font-size: 14px; text-align: left;">Buscar Habitacion</a></li>
+            {% endif %}
+            <hr style="color: rgb(255, 255, 255); width: 190px; border: 2px solid; border-radius: 10px; margin-left: 15px; margin-top: 170px;">
+            <li><a href="#" class="semilight" style="font-size: 14px; text-align: left;">¿Dudas?</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <!-- Información del arrendador -->
+        <p class="semilight" style=" color: #d19a67;margin-top: 20px;">Información del Arrendador</p>
+        <div class="row arrendador-section">
+            <div class="col">
+                <div class="row">
+                    <div class="col-auto">
+                        <div class="circle" style="margin-left: 30px;margin-right: 30px;">
+                            {% if alojamiento.usuario.foto_perfil %}
+                                <img src="{{ alojamiento.usuario.foto_perfil.url }}" alt="Foto de perfil">
+                            {% else %}
+                                <img src="{% static 'myapp/images/default_profile.png' %}" alt="Foto de perfil">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col info">
+                        <p style="font-size: 17px; color: #242424;margin-top: 20px;"> <strong>Nombre:</strong> {{ alojamiento.usuario.nombre }}</p>
+                        <p style="font-size: 17px; color: #242424;margin-top: 20px;"> <strong>Edad: </strong>{{ alojamiento.usuario.edad }}</p>
+                        <p style="font-size: 17px; color: #242424;margin-top: 20px;"> <strong>Numero: </strong>{{ alojamiento.usuario.telefono }}</p>
+                    </div>
+                    <div class="col">
+                        <div class="col" style="text-align: end;margin-right: 30px;">
+                            <a href="{% url 'arrendador_profile' alojamiento.usuario.id %}" class="btn" style="background-color: rgb(45, 90, 92); color: whitesmoke;">Ver perfil</a>
+                            {% if alojamiento.usuario.mostrar_whatsapp %}
+                                <a href="https://wa.me/{{ alojamiento.usuario.telefono }}?text=Quisiera%20saber%20mas%20sobre%20este%20alojamiento🏠" class="btn btn-success">
+                                    <i class="bi bi-whatsapp"></i> Contactar
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+
+        <!-- Información del alojamiento -->
+        <div class="col">
+            <p class="semilight" style=" color: #d19a67;margin-top: 20px;">Información del Alojamiento</p>
+        </div>
+        <div class="alojamiento-section">
+            <div id="container" class="row" style="margin-bottom: -30px;">
+                <div class="col">
+                    <p><strong class="light" style="font-size: 13px; color: #242424;margin-top: 20px;">Ubicación</strong></p>
+                </div>
+                <div class="col">
+                    <p><strong class="light" style="font-size: 13px; color: #242424;margin-top: 20px;">Imágenes del alojamiento</strong></p>
+                </div>
+            </div>
+            <div class="row" >
+                <div class="col-6">
+                    <div class="map-container">
+                        <iframe id="mapa" width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q={{ alojamiento.latitud }},{{ alojamiento.longitud }}&amp;t=&amp;z=17&amp;ie=UTF8&amp;iwloc=&amp;output=embed"></iframe>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="slider-container">
+                        {% for imagen in alojamiento.imagenes.all %}
+                        <div class="image-container"><img src="{{ imagen.imagen.url }}" class="img-fluid" alt="Image"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <div id="container" class="row" style="margin-top: 30px;margin-bottom: -10px;">
+                <div class="col">
+                    <p><strong class="light" style="font-size: 13px; color: #242424;">Descripción</strong></p>
+                </div>
+                <div class="col-12" style="margin-bottom: 30px;">
+                    <div class="rounded-bg-white">
+                        {{ alojamiento.descripcion }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <p><strong class="light" style="font-size: 13px; color: #242424;">Precio</strong></p>
+                </div>
+                <div class="col-12" >
+                    <div class="precio-box" >
+                        <p>S/. {{ alojamiento.precio }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <div id="container" class="row" style="margin-top: 30px;margin-bottom: -10px;">
+                <div class="col">
+                    <p><strong class="light" style="font-size: 13px; color: #242424;">Detalles</strong></p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="">
+                        {% for detalle in alojamiento.caracteristicas %}
+                            <span class="characteristic-bubble">{{ detalle }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- "Footer"-->
+    <footer>
+        Aquí va el contenido del footer.
+    </footer>
+
+    <script>
+        // Función para agregar el marcador de casa al mapa
+        function agregarMarcadorCasa() {
+            var mapa = document.getElementById('mapa');
+            mapa.contentWindow.postMessage('{"event":"addMarker","lat": -12.043954147829243, "lng": -76.95126047028485, "icon": "https://maps.google.com/mapfiles/kml/shapes/homegardenbusiness.png"}', '*');
+        }
+        // Llama a la función después de que el iframe se haya cargado
+        window.addEventListener('load', agregarMarcadorCasa);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybBogGzog5GoCwJAIh3z9F5hXY56Bg" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-Y4oB8i+7lUZ65VOtq5r6bPHWVJoGrhPpXT7W9+ZSc3Lsw2gFkxiByiT/R" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        // Boton de menu
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.style.width = '250px';
+        });
+
+        document.querySelector('.close-btn').addEventListener('click', function() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.style.width = '0';
+        });
+
+        window.onclick = function(event) {
+            var sidebar = document.getElementById("sidebar");
+            if (event.target == sidebar) {
+                sidebar.style.width = '0';
+            }
+        }
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('.slider-container').slick({
+                infinite: false,
+                slidesToShow: 2,
+                slidesToScroll: 1,
+                dots: true,
+                arrows: true,
+                prevArrow: '<button type="button" class="slick-prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button>',
+                nextArrow: '<button type="button" class="slick-next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span></button>'
+            });
+        });
+    </script>
+</body>
+</html>
