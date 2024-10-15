@@ -9,9 +9,194 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.css"/>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'myapp/css/habitaciones.css' %}">
-    <link rel="stylesheet" href="{% static 'myapp/css/myfonts.css' %}">
     <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inria Sans', sans-serif;
+        }
+
+        header {
+            background-color: #212F38;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        header img {
+            max-height: 40px;
+        }
+
+        .sidebar {
+            background-color: #212F38;
+            width: 200px;
+            position: fixed;
+            top: 120px;
+            right: -220px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px;
+            transition: right 0.3s ease-in-out;
+            z-index: 2;
+            border-radius: 20px;
+            padding-bottom: 20px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            background-color: #2A3B46;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        .sidebar a:hover {
+            background-color: #3C4B55;
+        }
+
+        .menu-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #212F38;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 11;
+            transition: background-color 0.3s;
+            font-size: 24px;
+        }
+
+        .menu-button:hover {
+            background-color: #3C4B55;
+        }
+
+        .menu-button i {
+            font-size: 24px;
+            color: white;
+        }
+
+
+        p {
+            font-weight: bold; /* Texto en negrita por defecto */
+        }
+
+        .info p {
+            font-weight: normal; /* Quita la negrita para estos elementos p */
+        }
+
+        .info {
+            width: calc(100% - 100px); /* Calcula el ancho de la columna de texto */
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px; /* Espaciado entre filas */
+        }
+
+        .container {
+            max-width: 1200px; /* Ancho máximo del contenedor */
+            margin: 0 auto; /* Centra el contenedor en la página */
+        }
+
+        .arrendador-section {
+            margin-top: 100px;
+            background-color: #EAEAEA; /* Fondo gris oscuro */
+            padding-top: 20px;
+            border-radius: 10px; /* Bordes redondeados */
+            color: rgb(24, 24, 24); /* Color del texto en blanco */
+            margin-bottom: 20px; /* Espaciado inferior para separar del siguiente contenido */
+        }
+
+        .alojamiento-section {
+            background-color: #EAEAEA; /* Fondo gris oscuro */
+            border-radius: 10px; /* Bordes redondeados */
+            color: rgb(24, 24, 24); /* Color del texto en blanco */
+            margin-bottom: 20px; /* Espaciado inferior para separar del siguiente contenido */
+            padding: 20px;
+            width: 1200px;
+            margin-left: -11px;
+        }
+
+        .arrendador-section p {
+            color: rgb(24, 24, 24); /* Color del texto en blanco */
+        }
+
+        .arrendador-title {
+            margin-top: 30px; /* Margen superior de 30 píxeles */
+        }
+
+        .map-container {
+            width: 100%;
+            height: 305px; /* Ajusta la altura del mapa según lo necesites */
+            border-radius: 20px; /* Bordes redondeados */
+            overflow: hidden; /* Oculta cualquier contenido que se desborde */
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%; /* El iframe debe ocupar todo el espacio del contenedor */
+            border: 0; /* Elimina el borde del iframe */
+        }
+
+        .slider-container {
+            width: 100%;
+            height: auto; /* Ajusta la altura del slider según lo necesites */
+            border-radius: 20px; /* Bordes redondeados */
+            overflow: hidden; /* Oculta cualquier contenido que se desborde */
+        }
+
+        .slider-container img {
+            width: 600px;
+            height: 300px;
+            object-fit: cover;
+            margin-right: 10px; /* Agrega un margen derecho de 20px entre las imágenes */
+            background-color: rgb(24, 24, 24);
+            cursor: grab;
+        }
+
+        .slider-container img:last-child {
+            margin-right: 0;
+        }
+
+        .slider-container img:active {
+            cursor: grabbing;
+        }
+
+
+        /* Enlaces de navegación del slider */
+        .slick-prev, .slick-next {
+            color: #fff;
+            font-size: 1.5em;
+            z-index: 1;
+        }
+
         .circle {
             position: relative;
             width: 150px;
@@ -24,50 +209,17 @@
             justify-content: center;
             margin: auto;
         }
+        
         .circle img {
             width: 100%;
             height: auto;
         }
-        .edit-button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 10px 20px;
-            height: 30%;
-            background-color: #21614c;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+
         .profile-info p {
             font-size: 12px;
             margin: 5px 0;
         }
-        .alojamiento-card {
-            width: 18%;
-            margin: 1%;
-            float: left;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
-        }
-        .no-alojamientos {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .card {
-            width: 370px;
-            height: 490px;
-            background-color: #ffffff;
-            border-radius: 15px;
-            padding: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-            margin-bottom: 30px;
-            overflow: hidden;
-        }
+
         .photo {
             width: 100%;
             height: 250px;
@@ -78,8 +230,8 @@
         }
         .characteristic-bubble {
             display: inline-block;
-            background-color: #e0f7fa;
-            color: #00796b;
+            background-color: #85b9da;
+            color: #ffffff;
             padding: 5px 10px;
             border-radius: 15px;
             margin: 2px;
@@ -88,47 +240,52 @@
         .slider-container {
             margin-top: 30px;
         }
+        
         .rounded-bg-white {
             background-color: white;
             padding: 10px;
-            padding-top: 20px;
-            border-radius: 5px;
-            margin-top: 10px;
-            color: black;
-            min-height: 60px;
-            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Añade una pequeña sombra para dar efecto de elevación */
+        }
+
+        .precio-box {
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <button class="menu-button" id="menuButton" style="z-index: 11;"> 
+        <i class="fas fa-bars"></i>
+    </button>
+
     <header>
-        <img id="header-image" src="{% static 'myapp/images/StayPandaHere.png' %}" alt="Logo">
-        <button class="menu-toggle">&#9776;</button> <!-- Ícono de menú -->
+        <a href="{% url 'home' %}">
+            <img src="{% static 'myapp/images/StayPandaHere.png' %}" alt="StayPandaHere">
+        </a>
     </header>
 
-    <!-- Sidebar -->
-    <div id="sidebar" class="sidebar">
-        <button class="close-btn" id="close-button">&times;</button> <!-- Botón cerrar -->
-        <ul>
-            {% if user.is_authenticated %}
-                <li><a href="{% url 'user' %}" class="semilight" style="font-size: 14px; text-align: left;">Mi perfil</a></li> <!-- Nuevo enlace -->
-                <li><a href="{% url 'nuevo' %}" class="semilight" style="font-size: 14px; text-align: left;">Ofrecer Habitaciones</a></li>
-                <li><a href="{% url 'home' %}" class="semilight" style="font-size: 14px; text-align: left;">Buscar Habitacion</a></li>
-                <li><a href="{% url 'logout' %}" class="semilight" style="font-size: 14px; text-align: left;">Cerrar Sesion</a></li>
-            {% else %}
-                <li><a href="{% url 'login' %}" class="semilight" style="font-size: 14px; text-align: left;">Iniciar Sesion</a></li>
-                <li><a href="{% url 'alert' %}" class="semilight" style="font-size: 14px; text-align: left;">Ofrecer Habitaciones</a></li>
-                <li><a href="{% url 'home' %}" class="semilight" style="font-size: 14px; text-align: left;">Buscar Habitacion</a></li>
-            {% endif %}
-            <hr style="color: rgb(255, 255, 255); width: 190px; border: 2px solid; border-radius: 10px; margin-left: 15px; margin-top: 170px;">
-            <li><a href="#" class="semilight" style="font-size: 14px; text-align: left;">¿Dudas?</a></li>
-        </ul>
+    <div class="sidebar" id="sidebar">
+        {% if user.is_authenticated %}
+            <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+            <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+        {% else %}
+            <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesion</a>
+            <a href="{% url 'alert' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+        {% endif %}
+        <hr style="color: rgb(255, 255, 255); width: 150px; border: 2px solid; border-radius: 10px; margin-left: 15px; margin-top: 170px;">
+        <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
     </div>
+
 
     <div class="container">
         <!-- Información del arrendador -->
-        <p class="semilight" style=" color: #d19a67;margin-top: 20px;">Información del Arrendador</p>
+        <p class="semilight" style=" color: #85b9da;margin-top: 20px;">Información del Arrendador</p>
         <div class="row arrendador-section">
             <div class="col">
                 <div class="row">
@@ -163,7 +320,7 @@
 
         <!-- Información del alojamiento -->
         <div class="col">
-            <p class="semilight" style=" color: #d19a67;margin-top: 20px;">Información del Alojamiento</p>
+            <p class="semilight" style=" color: #85b9da;margin-top: 20px;">Información del Alojamiento</p>
         </div>
         <div class="alojamiento-section">
             <div id="container" class="row" style="margin-bottom: -30px;">
@@ -231,10 +388,27 @@
         </div>
 
     </div>
-    <!-- "Footer"-->
-    <footer>
-        Aquí va el contenido del footer.
-    </footer>
+
+    <!-- JS de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        // Botón de menú lateral
+        const menuButton = document.getElementById('menuButton');
+        const sidebar = document.getElementById('sidebar');
+        let sidebarVisible = false;
+
+        menuButton.addEventListener('click', () => {
+            if (sidebarVisible) {
+                sidebar.style.right = '-220px';
+                menuButton.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                sidebar.style.right = '10px'; 
+                menuButton.innerHTML = '<i class="fas fa-times"></i>';
+            }
+            sidebarVisible = !sidebarVisible;
+        });
+    </script>
 
     <script>
         // Función para agregar el marcador de casa al mapa
@@ -249,26 +423,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-Y4oB8i+7lUZ65VOtq5r6bPHWVJoGrhPpXT7W9+ZSc3Lsw2gFkxiByiT/R" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script>
-        // Boton de menu
-        document.querySelector('.menu-toggle').addEventListener('click', function() {
-            var sidebar = document.getElementById("sidebar");
-            sidebar.style.width = '250px';
-        });
 
-        document.querySelector('.close-btn').addEventListener('click', function() {
-            var sidebar = document.getElementById("sidebar");
-            sidebar.style.width = '0';
-        });
-
-        window.onclick = function(event) {
-            var sidebar = document.getElementById("sidebar");
-            if (event.target == sidebar) {
-                sidebar.style.width = '0';
-            }
-        }
-    </script>
     <script>
         $(document).ready(function(){
             $('.slider-container').slick({

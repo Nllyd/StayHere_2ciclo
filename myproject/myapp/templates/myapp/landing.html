@@ -24,46 +24,16 @@
             height: 100px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             width: 100%;
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 9999;
-            padding: 0 30px;
+            z-index: 10; /* Aumentamos el z-index */
         }
 
         header img {
             max-height: 40px;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-        }
-
-        .header-right a {
-            display: inline-block;
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: bold;
-        }
-
-        .header-right a:last-child {
-            padding: 10px 20px;
-            background-color: white;
-            color: black;
-            border-radius: 20px;
-            margin-left: 20px;
-            transition: background-color 0.3s ease;
-        }
-
-        .header-right a:last-child:hover {
-            background-color: #f2f2f2;
         }
 
         main {
@@ -295,12 +265,11 @@
 <body>
 
     <header>
-        <img src="{% static 'myapp/images/StayPandaHere.png' %}" alt="Logo">
-        <div class="header-right">
-            <a href="{% url 'login' %}">Iniciar Sesión</a>
-            <a href="{% url 'register' %}">Registrarse</a>
-        </div>
+        <a href="{% url 'home' %}">
+            <img src="{% static 'myapp/images/StayPandaHere.png' %}" alt="StayPandaHere">
+        </a>
     </header>
+    
 
     <div class="spacer">
         <h1>UN NUEVO ESPACIO<br>PARA TI</h1>

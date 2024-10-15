@@ -177,8 +177,57 @@
             background-color: #B96565;
         }
 
-        .acciones button:hover {
+        .deshabilitado {
+            background-color: #b3b3b3;
+            cursor: not-allowed;
+        }
+
+        .acciones button:hover:not(.deshabilitado) {
             opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 4;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .modal input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .modal button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -212,6 +261,7 @@
                     <th>Longitud</th>
                     <th>Características</th>
                     <th>Propietario</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -225,10 +275,14 @@
                     <td>{{ alojamiento.longitud }}</td>
                     <td>{{ alojamiento.caracteristicas }}</td>
                     <td>{{ alojamiento.usuario.nombre }}</td>
+                    <td class="acciones">
+                        <button class="editar {% if not user.admin_permissions.can_edit_alojamientos %}deshabilitado{% endif %}" onclick="abrirModal({{ alojamiento.id }}, '{{ alojamiento.nombre }}', '{{ alojamiento.descripcion }}', {{ alojamiento.precio }}, {{ alojamiento.latitud }}, {{ alojamiento.longitud }})" {% if not user.admin_permissions.can_edit_alojamientos %}disabled{% endif %}>Editar</button>
+                        <button class="eliminar {% if not user.admin_permissions.can_delete_alojamientos %}deshabilitado{% endif %}" onclick="eliminarAlojamiento({{ alojamiento.id }})" {% if not user.admin_permissions.can_delete_alojamientos %}disabled{% endif %}>Eliminar</button>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8">No hay alojamientos disponibles.</td>
+                    <td colspan="9">No hay alojamientos disponibles.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -239,6 +293,31 @@
             <a href="{% url 'admin_habitaciones' %}"><i class="fas fa-home"></i> Alojamientos</a>
             <a href="{% url 'admin_control' %}"><i class="fas fa-chart-line"></i> Control</a>
             <a href="{% url 'admin_permisos' %}"><i class="fas fa-user-shield"></i> Administradores</a>
+            <!-- Verificar si el usuario está autenticado para mostrar el botón de Cerrar Sesión -->
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+            {% endif %}
+        </div>
+
+        <div id="miModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="cerrarModal()">&times;</span>
+                <h2>Editar Alojamiento</h2>
+                <form id="editar-form">
+                    <input type="hidden" id="alojamiento-id">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" required>
+                    <label for="descripcion">Descripción:</label>
+                    <input type="text" id="descripcion" required>
+                    <label for="precio">Precio:</label>
+                    <input type="text" id="precio" required>
+                    <label for="latitud">Latitud:</label>
+                    <input type="text" id="latitud" required>
+                    <label for="longitud">Longitud:</label>
+                    <input type="text" id="longitud" required>
+                    <button type="button" onclick="guardarCambios()">Guardar Cambios</button>
+                </form>
+            </div>
         </div>
 
     <script>
@@ -277,6 +356,101 @@
                 }
             }
         }
+
+        function abrirModal(id, nombre, descripcion, precio, latitud, longitud) {
+            // Lógica para abrir un modal y mostrar los detalles del alojamiento para editar
+            console.log(`Editar alojamiento: ${id}, ${nombre}, ${descripcion}, ${precio}, ${latitud}, ${longitud}`);
+        }
+
+        function eliminarAlojamiento(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este alojamiento?')) {
+                // Lógica para eliminar el alojamiento
+                console.log(`Eliminar alojamiento: ${id}`);
+            }
+        }
+
+        function abrirModal(id, nombre, descripcion, precio, latitud, longitud) {
+            // Rellenar el modal con los datos del alojamiento seleccionado
+            document.getElementById('alojamiento-id').value = id;
+            document.getElementById('nombre').value = nombre;
+            document.getElementById('descripcion').value = descripcion;
+            document.getElementById('precio').value = precio;
+            document.getElementById('latitud').value = latitud;
+            document.getElementById('longitud').value = longitud;
+
+            // Mostrar el modal
+            document.getElementById('miModal').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            // Cerrar el modal
+            document.getElementById('miModal').style.display = 'none';
+        }
+
+        function guardarCambios() {
+            // Obtener los datos del formulario
+            let id = document.getElementById('alojamiento-id').value;
+            let nombre = document.getElementById('nombre').value;
+            let descripcion = document.getElementById('descripcion').value;
+            let precio = document.getElementById('precio').value;
+            let latitud = document.getElementById('latitud').value;
+            let longitud = document.getElementById('longitud').value;
+
+            // Hacer la solicitud POST para guardar los cambios
+            fetch('{% url "actualizar_alojamiento" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'id': id,
+                    'nombre': nombre,
+                    'descripcion': descripcion,
+                    'precio': precio,
+                    'latitud': latitud,
+                    'longitud': longitud
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.reload();  // Recargar la página después de guardar
+                } else {
+                    alert('Error al actualizar el alojamiento: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function eliminarAlojamiento(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este alojamiento?')) {
+                fetch('{% url "eliminar_alojamiento" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: new URLSearchParams({
+                        'id': id
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.reload();  // Recargar la página después de eliminar
+                    } else {
+                        alert('Error al eliminar el alojamiento: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+
     </script>
 </body>
 </html>

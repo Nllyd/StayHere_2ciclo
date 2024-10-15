@@ -1,101 +1,221 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publicar Alojamiento</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'myapp/css/habitaciones.css' %}">
-    <link rel="stylesheet" href="{% static 'myapp/css/myfonts.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'myapp/images/Imagenes StayHere/PandaRojo_Casa.png' %}">
+    <title>Stay Here - Publicar Alojamiento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inria Sans', sans-serif;
+        }
+
+        header {
+            background-color: #212F38;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        header img {
+            max-height: 40px;
+        }
+
+        .menu-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #212F38;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 11;
+            transition: background-color 0.3s;
+            font-size: 24px;
+        }
+
+        .menu-button:hover {
+            background-color: #3C4B55;
+        }
+
+        .menu-button i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .map-container {
+            position: relative;
+            height: 600px;
+        }
+
+        textarea {
+            resize: none; /* Disable manual resizing */
+            overflow: hidden; /* Hide scroll bar */
+        }
+
+        .form-check {
+            display: inline-block;
+            width: auto;
+            height: 50px;
+            background-color: #f5f5f5;
+            border-radius: 30px;
+            margin: 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 50px;
+            font-size: 14px;
+            position: relative;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+
+        .form-check-input {
+            display: none; /* Oculta el checkbox original */
+        }
+
+        .form-check-input:checked + .form-check-label {
+            background-color: #96B9CF; /* Color de fondo cuando está seleccionado */
+            color: white;
+        }
+
+        .form-check-label {
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            line-height: 50px;
+            color: black;
+            margin-bottom: 0;
+            border-radius: 30px;
+            padding: 0 15px;
+            transition: background-color 0.3s;
+            background-color: #f5f5f5; /* Asegura que todo el área tenga color */
+        }
+
+        .image-container img {
+            display: inline-block;
+            margin-right: 5px;
+            max-width: 100px;
+            max-height: 100px;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .cursor-grab {
+            cursor: grab;
+        }
+
+        .container {
+            margin-top: 120px; /* Margen superior de 120px */
+            background-color: white; /* Fondo blanco */
+            padding: 30px;
+            border-radius: 20px; /* Bordes redondeados */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+        }
+
+        p {
+            font-weight: bold; /* Texto en negrita */
+        }
+
+        .precio-box {
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            color: black;
+            height: 60px;
+            width: 280px;
+        }
+
+        .sidebar {
+            background-color: #212F38;
+            width: 200px;
+            position: fixed;
+            top: 120px;
+            right: -220px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px;
+            transition: right 0.3s ease-in-out;
+            z-index: 2;
+            border-radius: 20px;
+            padding-bottom: 20px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            background-color: #2A3B46;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+        }
+
+        .sidebar a:hover {
+            background-color: #3C4B55;
+        }
+
+    </style>
 </head>
-
-<style>
-    .map-container {
-        position: relative;
-        height: 600px;
-    }
-    textarea {
-        resize: none; /* Disable manual resizing */
-        overflow: hidden; /* Hide scroll bar */
-    }
-    .form-check {
-        display: inline-block;
-        width: 230px;
-        height: 50px;
-        background-color: white;
-        border-radius: 10px;
-        margin: 5px;
-        text-align: center;
-        vertical-align: middle;
-        line-height: 50px;
-        font-size: 14px;
-        position: relative;
-        margin-left: 50px;
-    }
-    .form-check-input {
-        position: absolute;
-        top: 50%;
-        left: 30px;
-        transform: translateY(-50%);
-        margin: 0;
-        width: 20px;
-        height: 20px;
-        border: 1px solid black; /* Border of the checkbox */
-        background-color: white; /* Background color of the checkbox */
-    }
-    .form-check-label {
-        display: inline-block;
-        width: 100%;
-        height: 100%;
-        line-height: 50px;
-        color: black;
-        margin-bottom: 0;
-    }
-    .form-check-label i {
-        margin-right: 5px;
-    }
-    .image-container img {
-        display: inline-block;
-        margin-right: 5px;
-        max-width: 100px;
-        max-height: 100px;
-    }
-    .cursor-pointer {
-        cursor: pointer;
-    }
-    .cursor-grab {
-        cursor: grab;
-    }
-</style>
-
 <body>
-    <!-- Header -->
-    <header>
-        <img id="header-image" src="{% static 'myapp/images/StayPandaHere.png' %}" alt="Logo">
-        <button class="menu-toggle">&#9776;</button> <!-- Ícono de menú -->
-    </header>
+    <button class="menu-button" id="menuButton" style="z-index: 11;"> 
+        <i class="fas fa-bars"></i>
+    </button>
 
-    <!-- Sidebar -->
-    <div id="sidebar" class="sidebar">
-        <button class="close-btn" id="close-button">&times;</button> <!-- Botón cerrar -->
-        <ul>
-            {% if user.is_authenticated %}
-                <li><a href="{% url 'user' %}" class="semilight" style="font-size: 14px; text-align: left;">Mi perfil</a></li> <!-- Nuevo enlace -->
-                <li><a href="{% url 'nuevo' %}" class="semilight" style="font-size: 14px; text-align: left;">Ofrecer Habitaciones</a></li>
-                <li><a href="{% url 'home' %}" class="semilight" style="font-size: 14px; text-align: left;">Buscar Habitacion</a></li>
-                <li><a href="{% url 'logout' %}" class="semilight" style="font-size: 14px; text-align: left;">Cerrar Sesion</a></li>
-            {% else %}
-                <li><a href="{% url 'login' %}" class="semilight" style="font-size: 14px; text-align: left;">Iniciar Sesion</a></li>
-                <li><a href="{% url 'alert' %}" class="semilight" style="font-size: 14px; text-align: left;">Ofrecer Habitaciones</a></li>
-                <li><a href="{% url 'home' %}" class="semilight" style="font-size: 14px; text-align: left;">Buscar Habitacion</a></li>
-            {% endif %}
-            <hr style="color: rgb(255, 255, 255); width: 190px; border: 2px solid; border-radius: 10px; margin-left: 15px; margin-top: 170px;">
-            <li><a href="#" class="semilight" style="font-size: 14px; text-align: left;">¿Dudas?</a></li>
-        </ul>
+    <header>
+        <a href="{% url 'home' %}">
+            <img src="{% static 'myapp/images/StayPandaHere.png' %}" alt="StayPandaHere">
+        </a>
+    </header>
+    
+    <div class="sidebar" id="sidebar">
+        {% if user.is_authenticated %}
+            <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+            <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+        {% else %}
+            <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesion</a>
+            <a href="{% url 'alert' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+        {% endif %}
+        <hr style="color: rgb(255, 255, 255); width: 150px; border: 2px solid; border-radius: 10px; margin-left: 15px; margin-top: 170px;">
+        <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
     </div>
 
+    <!-- Contenedor del formulario -->
     <div class="container">
         <form id="alojamiento-form" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
@@ -139,60 +259,84 @@
 
                         <p style="margin-top: 30px;">Selecciona las características del alojamiento</p>
                         <div class="d-flex flex-wrap">
+                            <!-- Opciones del alojamiento -->
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Wi-Fi" id="wifidefibraoptica">
-                                <label class="form-check-label" for="wifidefibraoptica">
+                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Habitación Personal" id="habitacionPersonal">
+                                <label class="form-check-label" for="habitacionPersonal">
+                                    <i class="fas fa-bed"></i> Habitación Personal
+                                </label>
+                            </div>
+                        
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Habitación Doble" id="habitacionDoble">
+                                <label class="form-check-label" for="habitacionDoble">
+                                    <i class="fas fa-bed"></i> Habitación Doble
+                                </label>
+                            </div>
+                        
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Petfriendly" id="petfriendly">
+                                <label class="form-check-label" for="petfriendly">
+                                    <i class="fas fa-paw"></i> Petfriendly
+                                </label>
+                            </div>
+                        
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Baño Propio" id="banoPropio">
+                                <label class="form-check-label" for="banoPropio">
+                                    <i class="fas fa-shower"></i> Baño Propio
+                                </label>
+                            </div>
+                        
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Wi-Fi" id="wifi">
+                                <label class="form-check-label" for="wifi">
                                     <i class="fas fa-wifi"></i> Wi-Fi
                                 </label>
                             </div>
+                        
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="caracteristicas" value="Estacionamiento" id="estacionamiento">
                                 <label class="form-check-label" for="estacionamiento">
-                                    <i class="fas fa-parking"></i> Estacionamiento
+                                    <i class="fas fa-car"></i> Estacionamiento
                                 </label>
                             </div>
+                        
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Espacio de Cocina" id="espacioparacocina">
-                                <label class="form-check-label" for="espacioparacocina">
+                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Espacio de Cocina" id="espacioCocina">
+                                <label class="form-check-label" for="espacioCocina">
                                     <i class="fas fa-utensils"></i> Espacio de Cocina
                                 </label>
                             </div>
+                        
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Agua caliente" id="duchadeaguacaliente">
-                                <label class="form-check-label" for="duchadeaguacaliente">
-                                    <i class="fas fa-shower"></i> Agua caliente
+                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Agua caliente" id="aguaCaliente">
+                                <label class="form-check-label" for="aguaCaliente">
+                                    <i class="fas fa-tint"></i> Agua Caliente
                                 </label>
                             </div>
+                        
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="caracteristicas" value="Amueblado" id="amueblado">
                                 <label class="form-check-label" for="amueblado">
                                     <i class="fas fa-couch"></i> Amueblado
                                 </label>
                             </div>
+                        
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Baño Propio" id="bañopropio">
-                                <label class="form-check-label" for="bañopropio">
-                                    <i class="fas fa-bath"></i> Baño Propio
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Pet-Friendly" id="petfriendly">
-                                <label class="form-check-label" for="petfriendly">
-                                    <i class="fas fa-paw"></i> Pet-Friendly
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Zonas Comunes" id="zonascomunes">
-                                <label class="form-check-label" for="zonascomunes">
+                                <input class="form-check-input" type="checkbox" name="caracteristicas" value="Zonas Comunes" id="zonasComunes">
+                                <label class="form-check-label" for="zonasComunes">
                                     <i class="fas fa-users"></i> Zonas Comunes
                                 </label>
                             </div>
+                        
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="caracteristicas" value="Tendedero" id="tendedero">
                                 <label class="form-check-label" for="tendedero">
-                                    <i class="fas fa-ellipsis-h"></i> Tendedero
+                                    <i class="fas fa-clothes-hanger"></i> Tendedero
                                 </label>
                             </div>
+                        
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="caracteristicas" value="Restaurante" id="restaurante">
                                 <label class="form-check-label" for="restaurante">
@@ -211,15 +355,33 @@
         </form>
     </div>
 
-    <!-- "Footer"-->
+    <!-- Footer -->
     <footer>
         Aquí va el contenido del footer.
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick.min.js"></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik&callback=initMap"></script>
     <script>
+
+        // Botón de menú lateral
+        const menuButton = document.getElementById('menuButton');
+        const sidebar = document.getElementById('sidebar');
+        let sidebarVisible = false;
+
+        menuButton.addEventListener('click', () => {
+            if (sidebarVisible) {
+                sidebar.style.right = '-220px';
+                menuButton.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                sidebar.style.right = '0'; 
+                menuButton.innerHTML = '<i class="fas fa-times"></i>';
+            }
+            sidebarVisible = !sidebarVisible;
+        });
+
         function displayImages(event) {
             const fileInput = event.target;
             const files = fileInput.files;
@@ -249,9 +411,7 @@
                 slidesToShow: 3,
                 slidesToScroll: 1,
                 dots: true,
-                arrows: true,
-                prevArrow: '<button type="button" class="slick-prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span>Previous</span></button>',
-                nextArrow: '<button type="button" class="slick-next"><span class="carousel-control-next-icon" aria-hidden="true"></span>Next</span></button>'
+                arrows: true
             });
         }
 
@@ -300,32 +460,11 @@
             document.getElementById('longitud').value = longitude;
         }
 
-        // Asegúrate de que initMap está definida globalmente para que Google Maps pueda acceder a ella
-        window.initMap = initMap;
-
         // Ajustar la altura del textarea automáticamente
         document.getElementById('descripcion').addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
         });
-
-        // Boton de menu
-        document.querySelector('.menu-toggle').addEventListener('click', function() {
-            var sidebar = document.getElementById("sidebar");
-            sidebar.style.width = '250px';
-        });
-
-        document.querySelector('.close-btn').addEventListener('click', function() {
-            var sidebar = document.getElementById("sidebar");
-            sidebar.style.width = '0';
-        });
-
-        window.onclick = function(event) {
-            var sidebar = document.getElementById("sidebar");
-            if (event.target == sidebar) {
-                sidebar.style.width = '0';
-            }
-        }
     </script>
 </body>
 </html>

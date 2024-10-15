@@ -12,6 +12,14 @@ import json
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
 
+
+import random
+import string
+from io import BytesIO
+from django.http import HttpResponse
+from PIL import Image, ImageDraw, ImageFont
+from django.core.cache import cache
+
 def logout_view(request):
     logout(request)
     return redirect('home')
@@ -23,9 +31,26 @@ def alert_view(request):
     return render(request, 'myapp/alert.html')
 
 def home_view(request):
+    # Obtener todos los alojamientos
     alojamientos = Alojamiento.objects.all()
-    coordenadas = [{'latitud': a.latitud, 'longitud': a.longitud, 'nombre': a.nombre, 'id': a.id} for a in alojamientos]
-    return render(request, 'myapp/home.html', {'alojamientos': alojamientos, 'coordenadas': coordenadas})
+    
+    # Crear una lista de diccionarios con la información necesaria
+    coordenadas = [
+        {
+            'latitud': alojamiento.latitud,
+            'longitud': alojamiento.longitud,
+            'nombre': alojamiento.nombre,
+            'id': alojamiento.id
+        } for alojamiento in alojamientos
+    ]
+    
+    # Pasar la lista de coordenadas al contexto y asegurarse de que se renderice como JSON en el template
+    context = {
+        'alojamientos': alojamientos,
+        'coordenadas_json': json.dumps(coordenadas)  # Convierte las coordenadas a JSON para pasarlas al frontend
+    }
+    
+    return render(request, 'myapp/home.html', context)
 
 @login_required
 def alojamiento_detalle_view(request, alojamiento_id):
@@ -36,11 +61,23 @@ def login_view(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
+        user_captcha = request.POST['captcha']  # Captura el captcha que el usuario ingresó
+
+        # Verificar el captcha almacenado en caché
+        captcha_stored = cache.get(request.session.session_key)
+        if user_captcha != captcha_stored:
+            return render(request, 'myapp/login.html', {'error': 'Captcha incorrecto'})
+
         user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
             messages.success(request, 'Logueo exitoso')
-            return redirect('home')
+
+            # Verifica si el usuario es superuser
+            if user.is_superuser:
+                return redirect('admin_users')  # Redirige a la vista de admin_users si es superuser
+            else:
+                return redirect('home')  # Redirige a home si no es superuser
         else:
             return render(request, 'myapp/login.html', {'error': 'Correo o contraseña incorrectos'})
     return render(request, 'myapp/login.html')
@@ -86,18 +123,38 @@ def register_view(request):
         telefono = request.POST['telefono']
         edad = request.POST['edad']
         password = request.POST['password']
-        
+        captcha_user_input = request.POST['captcha']  # Captura el input del captcha
+
+        # Obtener el captcha almacenado en caché
+        captcha_stored = cache.get(request.session.session_key)
+
+        # Verificar si el captcha es correcto
+        if not captcha_stored or captcha_user_input.upper() != captcha_stored:
+            return render(request, 'myapp/register.html', {'error': 'Captcha incorrecto'})
+
+        # Verificar si el correo ya está en uso
         if Usuario.objects.filter(email=email).exists():
             return render(request, 'myapp/register.html', {'error': 'Correo ya utilizado'})
         
         try:
+            # Crear el usuario
             usuario = Usuario(nombre=nombre, email=email, telefono=telefono, edad=edad, username=email)
             usuario.set_password(password)
             usuario.save()
-            return redirect('home')
+
+            # Autenticar al usuario recién creado
+            user = authenticate(request, username=email, password=password)
+            if user is not None:
+                login(request, user)  # Loguear automáticamente
+                messages.success(request, 'Registro y logueo exitoso.')
+                return redirect('home')  # Redirigir a la página de inicio
+
         except IntegrityError:
             return render(request, 'myapp/register.html', {'error': 'Error al crear el usuario'})
-    return render(request, 'myapp/register.html')
+
+    # Si es un GET request, generar un nuevo captcha
+    captcha_text = generate_captcha(request)
+    return render(request, 'myapp/register.html', {'captcha': captcha_text})
 
 @login_required
 def user_view(request):
@@ -239,3 +296,87 @@ def admin_permisos(request):
         'administradores': administradores
     }
     return render(request, 'myapp/admin_permisos.html', context)
+
+
+def generate_captcha(request):
+    # Generar una cadena de 4 letras aleatorias
+    captcha_text = ''.join(random.choices(string.ascii_uppercase, k=4))
+
+    # Guardar el captcha en la sesión del usuario o en el caché
+    cache.set(request.session.session_key, captcha_text, 300)  # Validez de 5 minutos
+
+    # Crear la imagen del captcha
+    width, height = 150, 50
+    image = Image.new('RGB', (width, height), color=(255, 255, 255))
+    font = ImageFont.truetype("arial.ttf", 36)  # Asegúrate de tener la fuente
+
+    draw = ImageDraw.Draw(image)
+
+    # Dibujar el texto del captcha
+    draw.text((10, 5), captcha_text, font=font, fill=(0, 0, 0))
+
+    # Añadir líneas sobre el captcha para hacer más difícil la lectura
+    for _ in range(5):  # Dibujar 5 líneas
+        x1 = random.randint(0, width)
+        y1 = random.randint(0, height)
+        x2 = random.randint(0, width)
+        y2 = random.randint(0, height)
+        draw.line(((x1, y1), (x2, y2)), fill=(0, 0, 0), width=2)
+
+    # Convertir la imagen a formato de bytes para devolverla como respuesta
+    buffer = BytesIO()
+    image.save(buffer, format='PNG')
+    buffer.seek(0)
+
+    return HttpResponse(buffer, content_type='image/png')
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Alojamiento
+
+@superuser_required
+def actualizar_alojamiento(request):
+    if request.method == 'POST':
+        alojamiento_id = request.POST.get('id')
+        
+        # Verificar si el usuario tiene permiso para editar alojamientos
+        if not request.user.admin_permissions.can_edit_alojamientos:
+            return HttpResponseForbidden("No tienes permiso para editar alojamientos.")
+        
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        precio = request.POST.get('precio')
+        latitud = request.POST.get('latitud')
+        longitud = request.POST.get('longitud')
+
+        try:
+            alojamiento = Alojamiento.objects.get(id=alojamiento_id)
+            alojamiento.nombre = nombre
+            alojamiento.descripcion = descripcion
+            alojamiento.precio = precio
+            alojamiento.latitud = latitud
+            alojamiento.longitud = longitud
+            alojamiento.save()
+            return JsonResponse({'status': 'success'})
+        except Alojamiento.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Alojamiento no encontrado'}, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@superuser_required
+def eliminar_alojamiento(request):
+    if request.method == 'POST':
+        alojamiento_id = request.POST.get('id')
+        
+        # Verificar si el usuario tiene permiso para eliminar alojamientos
+        if not request.user.admin_permissions.can_delete_alojamientos:
+            return HttpResponseForbidden("No tienes permiso para eliminar alojamientos.")
+
+        try:
+            alojamiento = Alojamiento.objects.get(id=alojamiento_id)
+            alojamiento.delete()
+            return JsonResponse({'status': 'success'})
+        except Alojamiento.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Alojamiento no encontrado'}, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
+
