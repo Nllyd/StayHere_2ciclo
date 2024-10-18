@@ -24,4 +24,11 @@ urlpatterns = [
     path('captcha/', generate_captcha, name='captcha'),
     path('actualizar_alojamiento/', actualizar_alojamiento, name='actualizar_alojamiento'),
     path('eliminar_alojamiento/', eliminar_alojamiento, name='eliminar_alojamiento'),
+
+    #Endpoints para flutter
+    path('api/usuarios/', views.UsuarioListCreate.as_view(), name='usuario-list-create'),
+    path('api/usuarios/<int:pk>/', views.UsuarioDetail.as_view(), name='usuario-detail'),
+    path('api/alojamientos/', views.AlojamientoListCreate.as_view(), name='alojamiento-list-create'),
+    path('api/alojamientos/<int:pk>/', views.AlojamientoDetail.as_view(), name='alojamiento-detail'),
+    path('api/imagenes/', views.ImagenAlojamientoListCreate.as_view(), name='imagen-list-create'),
 ]

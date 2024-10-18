@@ -12,6 +12,9 @@ import json
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
 
+from rest_framework import generics
+from .serializers import UsuarioSerializer, AlojamientoSerializer, ImagenAlojamientoSerializer
+
 
 import random
 import string
@@ -121,38 +124,32 @@ def register_view(request):
         nombre = request.POST['nombre']
         email = request.POST['email']
         telefono = request.POST['telefono']
-        edad = request.POST['edad']
+        fecha_nacimiento = request.POST['fecha_nacimiento']  # Capturar la fecha de nacimiento
         password = request.POST['password']
-        captcha_user_input = request.POST['captcha']  # Captura el input del captcha
+        captcha_user_input = request.POST['captcha']
 
-        # Obtener el captcha almacenado en caché
         captcha_stored = cache.get(request.session.session_key)
 
-        # Verificar si el captcha es correcto
         if not captcha_stored or captcha_user_input.upper() != captcha_stored:
             return render(request, 'myapp/register.html', {'error': 'Captcha incorrecto'})
 
-        # Verificar si el correo ya está en uso
         if Usuario.objects.filter(email=email).exists():
             return render(request, 'myapp/register.html', {'error': 'Correo ya utilizado'})
-        
+
         try:
-            # Crear el usuario
-            usuario = Usuario(nombre=nombre, email=email, telefono=telefono, edad=edad, username=email)
+            usuario = Usuario(nombre=nombre, email=email, telefono=telefono, fecha_nacimiento=fecha_nacimiento, username=email)
             usuario.set_password(password)
             usuario.save()
 
-            # Autenticar al usuario recién creado
             user = authenticate(request, username=email, password=password)
             if user is not None:
-                login(request, user)  # Loguear automáticamente
+                login(request, user)
                 messages.success(request, 'Registro y logueo exitoso.')
-                return redirect('home')  # Redirigir a la página de inicio
+                return redirect('home')
 
         except IntegrityError:
             return render(request, 'myapp/register.html', {'error': 'Error al crear el usuario'})
 
-    # Si es un GET request, generar un nuevo captcha
     captcha_text = generate_captcha(request)
     return render(request, 'myapp/register.html', {'captcha': captcha_text})
 
@@ -380,3 +377,37 @@ def eliminar_alojamiento(request):
             return JsonResponse({'status': 'error', 'message': 'Alojamiento no encontrado'}, status=404)
     return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
 
+#HTTP PARA FLUTTER
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+@api_view(['POST'])
+def create_usuario(request):
+    if request.method == 'POST':
+        serializer = UsuarioSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UsuarioListCreate(generics.ListCreateAPIView):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+
+class UsuarioDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+
+class AlojamientoListCreate(generics.ListCreateAPIView):
+    queryset = Alojamiento.objects.all()
+    serializer_class = AlojamientoSerializer
+
+class AlojamientoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Alojamiento.objects.all()
+    serializer_class = AlojamientoSerializer
+
+class ImagenAlojamientoListCreate(generics.ListCreateAPIView):
+    queryset = ImagenAlojamiento.objects.all()
+    serializer_class = ImagenAlojamientoSerializer

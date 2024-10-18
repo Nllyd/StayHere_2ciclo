@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.conf import settings
+from datetime import date
 
 class MyUserManager(BaseUserManager):
     def create_user(self, email, nombre, telefono, edad, password=None):
@@ -27,14 +28,14 @@ class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15)
-    edad = models.IntegerField()
+    fecha_nacimiento = models.DateField(null=True, blank=True)  # Cambiar de edad a fecha de nacimiento
     foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True)
     mostrar_whatsapp = models.BooleanField(default=False)
 
     objects = MyUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nombre', 'telefono', 'edad']
+    REQUIRED_FIELDS = ['nombre', 'telefono', 'fecha_nacimiento']  # Actualizar los campos requeridos
 
     groups = models.ManyToManyField(
         'auth.Group',
@@ -47,6 +48,13 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    @property
+    def edad(self):
+        if self.fecha_nacimiento:
+            today = date.today()
+            return today.year - self.fecha_nacimiento.year - ((today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
+        return None
 
 
 class Alojamiento(models.Model):
