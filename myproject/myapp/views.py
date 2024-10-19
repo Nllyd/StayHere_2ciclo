@@ -11,11 +11,17 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
-
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 from .serializers import UsuarioSerializer, AlojamientoSerializer, ImagenAlojamientoSerializer
-
-
+from django.views.decorators.csrf import csrf_protect
+from django.middleware.csrf import get_token
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from django.contrib.auth import authenticate, login
+from datetime import datetime
+from .models import Usuario
 import random
 import string
 from io import BytesIO
@@ -124,9 +130,17 @@ def register_view(request):
         nombre = request.POST['nombre']
         email = request.POST['email']
         telefono = request.POST['telefono']
-        fecha_nacimiento = request.POST['fecha_nacimiento']  # Capturar la fecha de nacimiento
         password = request.POST['password']
         captcha_user_input = request.POST['captcha']
+
+        # Capturar 'fecha_nacimiento' como un string del formulario
+        fecha_nacimiento_str = request.POST['fecha_nacimiento']
+
+        # Convertir 'fecha_nacimiento' de string a objeto 'date'
+        try:
+            fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, '%Y-%m-%d').date()  # Convertir string a date
+        except ValueError:
+            return render(request, 'myapp/register.html', {'error': 'Formato de fecha incorrecto. Usa AAAA-MM-DD'})
 
         captcha_stored = cache.get(request.session.session_key)
 
@@ -137,8 +151,14 @@ def register_view(request):
             return render(request, 'myapp/register.html', {'error': 'Correo ya utilizado'})
 
         try:
-            usuario = Usuario(nombre=nombre, email=email, telefono=telefono, fecha_nacimiento=fecha_nacimiento, username=email)
-            usuario.set_password(password)
+            # Crear el usuario usando la fecha de nacimiento ya convertida
+            usuario = Usuario.objects.create_user(
+                nombre=nombre,
+                email=email,
+                telefono=telefono,
+                fecha_nacimiento=fecha_nacimiento,  # Ya es un objeto 'date'
+                password=password
+            )
             usuario.save()
 
             user = authenticate(request, username=email, password=password)
@@ -379,19 +399,79 @@ def eliminar_alojamiento(request):
 
 #HTTP PARA FLUTTER
 
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 
+
+
+@api_view(['GET'])
+def get_csrf_token(request):
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
+
+@csrf_exempt
 @api_view(['POST'])
 def create_usuario(request):
-    if request.method == 'POST':
-        serializer = UsuarioSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    data = request.data
+    email = data.get('email')
+    password = data.get('password')
+    nombre = data.get('nombre')
+    telefono = data.get('telefono')
+    fecha_nacimiento_str = data.get('fecha_nacimiento')
+
+    # Verificar si todos los campos requeridos están presentes
+    if not email or not password or not nombre or not telefono or not fecha_nacimiento_str:
+        return Response({'error': 'Todos los campos son requeridos'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Convertir 'fecha_nacimiento' de string a objeto 'date'
+    try:
+        fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, '%Y-%m-%d').date()  # Formato 'YYYY-MM-DD'
+    except ValueError:
+        return Response({'error': 'Formato de fecha inválido. Usa el formato AAAA-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Verificar si el email ya está registrado
+    if Usuario.objects.filter(email=email).exists():
+        return Response({'error': 'El correo ya está registrado'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Crear el usuario con la fecha de nacimiento ya convertida
+        usuario = Usuario.objects.create_user(
+            email=email,
+            nombre=nombre,
+            telefono=telefono,
+            fecha_nacimiento=fecha_nacimiento,  # Este es un objeto 'date'
+            password=password
+        )
+        usuario.save()
+        return Response({'message': 'Usuario creado exitosamente'}, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@csrf_exempt
+@api_view(['POST'])
+def login_usuario(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    if not email or not password:
+        return Response({'success': False, 'message': 'Email y contraseña son requeridos'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=email, password=password)
+
+    if user is not None:
+        login(request, user)
+        csrf_token = get_token(request)
+        response = Response({'success': True, 'message': 'Inicio de sesión exitoso'})
+        response.set_cookie('csrftoken', csrf_token)
+        return response
+    else:
+        return Response({'success': False, 'message': 'Credenciales incorrectas'}, status=status.HTTP_400_BAD_REQUEST)
+
     
+
+
+
 class UsuarioListCreate(generics.ListCreateAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer

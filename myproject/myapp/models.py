@@ -4,19 +4,25 @@ from django.conf import settings
 from datetime import date
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, email, nombre, telefono, edad, password=None):
+    def create_user(self, email, nombre, telefono, fecha_nacimiento=None, password=None):
         if not email:
             raise ValueError("El usuario debe tener un correo electrónico")
         
+        if fecha_nacimiento:
+            today = date.today()
+            edad = today.year - fecha_nacimiento.year - ((today.month, today.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+        else:
+            edad = None
+
         email = self.normalize_email(email)
-        user = self.model(email=email, nombre=nombre, telefono=telefono, edad=edad, username=email)
+        user = self.model(email=email, nombre=nombre, telefono=telefono, fecha_nacimiento=fecha_nacimiento, username=email)
         
         user.set_password(password)
         user.save(using=self._db)
         return user
     
-    def create_superuser(self, email, nombre, telefono, edad, password=None):
-        user = self.create_user(email, password=password, nombre=nombre, telefono=telefono, edad=edad)
+    def create_superuser(self, email, nombre, telefono, fecha_nacimiento=None, password=None):
+        user = self.create_user(email=email, nombre=nombre, telefono=telefono, fecha_nacimiento=fecha_nacimiento, password=password)
         user.is_admin = True
         user.is_staff = True
         user.is_superuser = True

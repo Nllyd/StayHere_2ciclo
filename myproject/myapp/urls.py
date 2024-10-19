@@ -1,6 +1,9 @@
 from django.urls import path
 from . import views
-from .views import generate_captcha,actualizar_alojamiento, eliminar_alojamiento
+from .views import generate_captcha, actualizar_alojamiento, eliminar_alojamiento, login_usuario
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+
 
 urlpatterns = [
     path('', views.landing_view, name='landing'),
@@ -25,8 +28,14 @@ urlpatterns = [
     path('actualizar_alojamiento/', actualizar_alojamiento, name='actualizar_alojamiento'),
     path('eliminar_alojamiento/', eliminar_alojamiento, name='eliminar_alojamiento'),
 
+    #Tokens de validacion
+    path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
     #Endpoints para flutter
-    path('api/usuarios/', views.UsuarioListCreate.as_view(), name='usuario-list-create'),
+    path('api/login/', login_usuario, name='api-login'),
+    path('api/usuarios/', views.create_usuario, name='usuario-list-create'),
     path('api/usuarios/<int:pk>/', views.UsuarioDetail.as_view(), name='usuario-detail'),
     path('api/alojamientos/', views.AlojamientoListCreate.as_view(), name='alojamiento-list-create'),
     path('api/alojamientos/<int:pk>/', views.AlojamientoDetail.as_view(), name='alojamiento-detail'),
