@@ -1,9 +1,7 @@
 from django.urls import path
 from . import views
-from .views import generate_captcha, actualizar_alojamiento, eliminar_alojamiento, login_usuario
+from .views import generate_captcha, actualizar_alojamiento, eliminar_alojamiento, login_usuario, editar_alojamiento_view
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
-
 
 urlpatterns = [
     path('', views.landing_view, name='landing'),
@@ -27,6 +25,7 @@ urlpatterns = [
     path('captcha/', generate_captcha, name='captcha'),
     path('actualizar_alojamiento/', actualizar_alojamiento, name='actualizar_alojamiento'),
     path('eliminar_alojamiento/', eliminar_alojamiento, name='eliminar_alojamiento'),
+    path('alojamiento/editar/<int:alojamiento_id>/', editar_alojamiento_view, name='editar_alojamiento'),
 
     #Tokens de validacion
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),

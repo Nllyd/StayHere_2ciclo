@@ -179,18 +179,30 @@ def user_view(request):
     alojamientos = Alojamiento.objects.filter(usuario=usuario)
     
     if request.method == 'POST':
-        usuario.nombre = request.POST['nombre']
-        usuario.telefono = request.POST['telefono']
-        usuario.edad = request.POST['edad']
+        # Validación de datos
+        nombre = request.POST.get('nombre')
+        telefono = request.POST.get('telefono')
+        fecha_nacimiento = request.POST.get('fecha_nacimiento')
+
+        if not nombre or not telefono or not fecha_nacimiento:
+            messages.error(request, 'Todos los campos son obligatorios.')
+            return render(request, 'myapp/user.html', {'usuario': usuario, 'alojamientos': alojamientos})
+
+        usuario.nombre = nombre
+        usuario.telefono = telefono
+        usuario.fecha_nacimiento = fecha_nacimiento
         usuario.mostrar_whatsapp = 'mostrar_whatsapp' in request.POST
         
         if 'foto_perfil' in request.FILES:
             usuario.foto_perfil = request.FILES['foto_perfil']
         
         usuario.save()
+        messages.success(request, 'Perfil actualizado exitosamente.')
         return redirect('user')
 
     return render(request, 'myapp/user.html', {'usuario': usuario, 'alojamientos': alojamientos})
+
+
 
 @login_required
 def user_profile_view(request, id):
@@ -210,6 +222,28 @@ def arrendador_profile_view(request, id):
     usuario = get_object_or_404(Usuario, id=id)
     alojamientos = Alojamiento.objects.filter(usuario=usuario)
     return render(request, 'myapp/arrendador_profile.html', {'usuario': usuario, 'alojamientos': alojamientos})
+
+@login_required
+def editar_alojamiento_view(request, alojamiento_id):
+    alojamiento = get_object_or_404(Alojamiento, id=alojamiento_id, usuario=request.user)
+
+    if request.method == 'POST':
+        alojamiento_id = request.POST['alojamiento_id']
+        alojamiento = Alojamiento.objects.get(id=alojamiento_id)
+
+        alojamiento.nombre = request.POST['nombre']
+        alojamiento.descripcion = request.POST['descripcion']
+        alojamiento.precio = request.POST['precio']
+        alojamiento.latitud = request.POST['latitud']
+        alojamiento.longitud = request.POST['longitud']
+        alojamiento.caracteristicas = request.POST['caracteristicas'].split(', ')
+        alojamiento.save()
+
+        messages.success(request, 'Alojamiento actualizado exitosamente.')
+        
+        return JsonResponse({'status': 'success'})
+
+    return render(request, 'myapp/editar_alojamiento.html', {'alojamiento': alojamiento})
 
 # ADMINISTRADOR
 

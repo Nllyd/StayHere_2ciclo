@@ -329,7 +329,7 @@
             {% if usuario.foto_perfil %}
                 <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil">
             {% else %}
-                <img src="{% static 'myapp/images/default_profile.png' %}" alt="Foto de perfil">
+                <img src="{% static 'myapp/images/Imagenes StayHere/default_profile.png' %}" alt="Foto de perfil">
             {% endif %}
         </div>
 
@@ -386,6 +386,16 @@
                                 <span class="price-value">{{ alojamiento.precio }} soles</span>
                             </div>
                             <a href="{% url 'alojamiento_detalle' alojamiento.id %}" class="btn btn-sm">Ver más</a>
+                            <a href="#" class="btn btn-sm edit-button" 
+                            data-id="{{ alojamiento.id }}" 
+                            data-nombre="{{ alojamiento.nombre }}" 
+                            data-descripcion="{{ alojamiento.descripcion }}" 
+                            data-precio="{{ alojamiento.precio }}" 
+                            data-latitud="{{ alojamiento.latitud }}" 
+                            data-longitud="{{ alojamiento.longitud }}" 
+                            data-caracteristicas="{{ alojamiento.caracteristicas|join:', ' }}" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editAlojamientoModal">Editar información</a>
                         </div>
                     </div>
                 {% endfor %}
@@ -411,8 +421,8 @@
                             <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre }}" class="form-control rounded-input" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edad" class="form-label">Edad</label>
-                            <input type="number" id="edad" name="edad" value="{{ usuario.edad }}" class="form-control rounded-input" required>
+                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ usuario.fecha_nacimiento|date:'Y-m-d' }}" class="form-control rounded-input" required>
                         </div>
                         <div class="mb-3">
                             <label for="telefono" class="form-label">Teléfono</label>
@@ -431,6 +441,58 @@
                                 <input type="checkbox" class="form-check-input" id="mostrar_whatsapp" name="mostrar_whatsapp" {% if usuario.mostrar_whatsapp %}checked{% endif %}>
                                 <label class="form-check-label" for="mostrar_whatsapp">Mostrar botón de WhatsApp</label>
                             </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded-button" data-bs-dismiss="modal" style="background-color: #212F38; color: white;">Cerrar</button>
+                        <button type="submit" class="btn btn-primary rounded-button" style="background-color: #212F38; color: white;">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar alojamiento -->
+    <div class="modal fade" id="editAlojamientoModal" tabindex="-1" aria-labelledby="editAlojamientoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAlojamientoModalLabel" style="color: #212F38;">Editar Alojamiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color: white;"></button>
+                </div>
+                <form id="editAlojamientoForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="alojamiento_id" name="alojamiento_id">
+                    
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="alojamiento_nombre" class="form-label">Nombre</label>
+                            <input type="text" id="alojamiento_nombre" name="nombre" class="form-control rounded-input" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="alojamiento_descripcion" class="form-label">Descripción</label>
+                            <textarea id="alojamiento_descripcion" name="descripcion" class="form-control rounded-input" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="alojamiento_precio" class="form-label">Precio</label>
+                            <input type="number" id="alojamiento_precio" name="precio" class="form-control rounded-input" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="alojamiento_latitud" class="form-label">Latitud</label>
+                            <input type="text" id="alojamiento_latitud" name="latitud" class="form-control rounded-input" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="alojamiento_longitud" class="form-label">Longitud</label>
+                            <input type="text" id="alojamiento_longitud" name="longitud" class="form-control rounded-input" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="alojamiento_caracteristicas" class="form-label">Características (separadas por comas)</label>
+                            <input type="text" id="alojamiento_caracteristicas" name="caracteristicas" class="form-control rounded-input" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -471,6 +533,49 @@
             }
             sidebarVisible = !sidebarVisible;
         });
+
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const alojamientoId = button.getAttribute('data-id');
+                const alojamientoNombre = button.getAttribute('data-nombre');
+                const alojamientoDescripcion = button.getAttribute('data-descripcion');
+                const alojamientoPrecio = button.getAttribute('data-precio');
+                const alojamientoLatitud = button.getAttribute('data-latitud');
+                const alojamientoLongitud = button.getAttribute('data-longitud');
+                const alojamientoCaracteristicas = button.getAttribute('data-caracteristicas');
+
+                document.getElementById('alojamiento_id').value = alojamientoId;
+                document.getElementById('alojamiento_nombre').value = alojamientoNombre;
+                document.getElementById('alojamiento_descripcion').value = alojamientoDescripcion;
+                document.getElementById('alojamiento_precio').value = alojamientoPrecio;
+                document.getElementById('alojamiento_latitud').value = alojamientoLatitud;
+                document.getElementById('alojamiento_longitud').value = alojamientoLongitud;
+                document.getElementById('alojamiento_caracteristicas').value = alojamientoCaracteristicas;
+            });
+        });
+
+        document.getElementById('editAlojamientoForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Previene el comportamiento por defecto del formulario
+
+            const formData = new FormData(this); // Crea un objeto FormData
+
+            fetch('{% url "editar_alojamiento" 0 %}'.replace("0", document.getElementById('alojamiento_id').value), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Asegúrate de incluir el token CSRF
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload(); // Recarga la página
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+
     </script>
 </body>
 </html>

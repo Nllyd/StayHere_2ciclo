@@ -34,14 +34,14 @@ class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15)
-    fecha_nacimiento = models.DateField(null=True, blank=True)  # Cambiar de edad a fecha de nacimiento
+    fecha_nacimiento = models.DateField(null=True, blank=True)
     foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True)
     mostrar_whatsapp = models.BooleanField(default=False)
 
     objects = MyUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nombre', 'telefono', 'fecha_nacimiento']  # Actualizar los campos requeridos
+    REQUIRED_FIELDS = ['nombre', 'telefono', 'fecha_nacimiento']
 
     groups = models.ManyToManyField(
         'auth.Group',
