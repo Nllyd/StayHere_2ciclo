@@ -286,9 +286,13 @@
                     <td>{{ usuario.telefono }}</td>
                     <td>{{ usuario.edad }}</td>
                     <td>{{ usuario.is_active|yesno:"Sí,No" }}</td>
-                    <td>{{ usuario.is_admin|yesno:"Sí,No" }}</td>
+                    <td>{{ usuario.is_superuser|yesno:"Sí,No" }}</td>
                     <td class="acciones">
-                        <button class="editar {% if not user.admin_permissions.can_edit_users %}deshabilitado{% endif %}" onclick="abrirModal({{ usuario.id }}, '{{ usuario.nombre }}', '{{ usuario.email }}', '{{ usuario.telefono }}', {{ usuario.edad }}, '{{ usuario.is_active }}', '{{ usuario.is_admin }}')" {% if not user.admin_permissions.can_edit_users %}disabled{% endif %}>Editar</button>
+                        <button class="editar {% if not user.admin_permissions.can_edit_users %}deshabilitado{% endif %}" 
+                            onclick="abrirModal({{ usuario.id }}, '{{ usuario.nombre }}', '{{ usuario.email }}', '{{ usuario.telefono }}', '{{ usuario.fecha_nacimiento|date:'Y-m-d' }}', '{{ usuario.is_active }}', '{{ usuario.is_superuser }}')" 
+                            {% if not user.admin_permissions.can_edit_users %}disabled{% endif %}>
+                            Editar
+                        </button>
                         <button class="eliminar {% if not user.admin_permissions.can_delete_users %}deshabilitado{% endif %}" onclick="eliminarUsuario({{ usuario.id }})" {% if not user.admin_permissions.can_delete_users %}disabled{% endif %}>Eliminar</button>
                     </td>
                 </tr>
@@ -301,7 +305,7 @@
         </table>
 
         <!-- Modal para editar usuario -->
-        <div id="miModal" class="modal">
+        <div id="EditarUsuariosModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="cerrarModal()">&times;</span>
                 <h2>Editar Usuario</h2>
@@ -313,9 +317,19 @@
                     <input type="text" id="email" required>
                     <label for="telefono">Teléfono:</label>
                     <input type="text" id="telefono" required>
-                    <label for="edad">Edad:</label>
-                    <input type="text" id="edad" required>
-                    <button type="button" onclick="guardarCambios()">Guardar Cambios</button>
+                    <div class="mb-3">
+                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control rounded-input" required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="isAdmin" name="is_admin">
+                            <label class="form-check-label" for="isAdmin">Administrador</label>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button type="button" onclick="guardarCambios()">Guardar Cambios</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -369,18 +383,18 @@
             }
         }
 
-        function abrirModal(id, nombre, email, telefono, edad, isActive, isAdmin) {
+        function abrirModal(id, nombre, email, telefono, fecha_nacimiento, isActive, isAdmin) {
             document.getElementById('usuario-id').value = id;
             document.getElementById('nombre').value = nombre;
             document.getElementById('email').value = email;
             document.getElementById('telefono').value = telefono;
-            document.getElementById('edad').value = edad;
-
-            document.getElementById('miModal').style.display = 'block';
+            document.getElementById('fecha_nacimiento').value = fecha_nacimiento;
+            document.getElementById('isAdmin').checked = (isAdmin === "Sí" || isAdmin === "true");
+            document.getElementById('EditarUsuariosModal').style.display = 'block';
         }
 
         function cerrarModal() {
-            document.getElementById('miModal').style.display = 'none';
+            document.getElementById('EditarUsuariosModal').style.display = 'none';
         }
 
         function guardarCambios() {
@@ -388,7 +402,8 @@
             let nombre = document.getElementById('nombre').value;
             let email = document.getElementById('email').value;
             let telefono = document.getElementById('telefono').value;
-            let edad = document.getElementById('edad').value;
+            let fecha_nacimiento = document.getElementById('fecha_nacimiento').value;
+            let isAdmin = document.getElementById('isAdmin').checked;
 
             fetch('{% url "actualizar_usuario" %}', {
                 method: 'POST',
@@ -401,7 +416,8 @@
                     'nombre': nombre,
                     'email': email,
                     'telefono': telefono,
-                    'edad': edad
+                    'fecha_nacimiento': fecha_nacimiento,
+                    'is_admin': isAdmin
                 })
             })
             .then(response => response.json())
@@ -418,7 +434,7 @@
         }
 
         window.onclick = function(event) {
-            let modal = document.getElementById('miModal');
+            let modal = document.getElementById('EditarUsuariosModal');
             if (event.target == modal) {
                 cerrarModal();
             }

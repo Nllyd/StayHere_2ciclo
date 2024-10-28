@@ -158,6 +158,74 @@
         .subdivision {
             text-align: center;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 4;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .modal-content input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .modal-content button {
+            background-color: #DE5D5D;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #C14B4B;
+        }
+
+        .editar {
+            background-color: #85B965;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .deshabilitado {
+            background-color: #b3b3b3;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -174,7 +242,6 @@
         <a href="{% url 'admin_habitaciones' %}"><i class="fas fa-home"></i> Alojamientos</a>
         <a href="{% url 'admin_control' %}"><i class="fas fa-chart-line"></i> Control</a>
         <a href="{% url 'admin_permisos' %}"><i class="fas fa-user-shield"></i> Administradores</a>
-        <!-- Verificar si el usuario está autenticado para mostrar el botón de Cerrar Sesión -->
         {% if user.is_authenticated %}
             <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
         {% endif %}
@@ -196,6 +263,7 @@
                     <th rowspan="2">ID</th>
                     <th rowspan="2">Nombre</th>
                     <th colspan="5" class="subdivision">Permisos</th>
+                    <th rowspan="2">Acciones</th>
                 </tr>
                 <tr>
                     <th>Editar Usuarios</th>
@@ -209,17 +277,55 @@
                 {% for administrador in administradores %}
                     <tr>
                         <td>{{ administrador.id }}</td>
-                        <td>{{ administrador.username }}</td>
-                        <td>{{ administrador.admin_permissions.can_edit_users|yesno:"Sí,No" }}</td>
-                        <td>{{ administrador.admin_permissions.can_delete_users|yesno:"Sí,No" }}</td>
-                        <td>{{ administrador.admin_permissions.can_edit_alojamientos|yesno:"Sí,No" }}</td>
-                        <td>{{ administrador.admin_permissions.can_delete_alojamientos|yesno:"Sí,No" }}</td>
-                        <td>{{ administrador.admin_permissions.can_grant_permissions|yesno:"Sí,No" }}</td>
+                        <td id="admin-name-{{ administrador.id }}">{{ administrador.username }}</td>
+                        <td id="edit-users-{{ administrador.id }}">{{ administrador.admin_permissions.can_edit_users|yesno:"Sí,No" }}</td>
+                        <td id="delete-users-{{ administrador.id }}">{{ administrador.admin_permissions.can_delete_users|yesno:"Sí,No" }}</td>
+                        <td id="edit-alojamientos-{{ administrador.id }}">{{ administrador.admin_permissions.can_edit_alojamientos|yesno:"Sí,No" }}</td>
+                        <td id="delete-alojamientos-{{ administrador.id }}">{{ administrador.admin_permissions.can_delete_alojamientos|yesno:"Sí,No" }}</td>
+                        <td id="grant-permissions-{{ administrador.id }}">{{ administrador.admin_permissions.can_grant_permissions|yesno:"Sí,No" }}</td>                        
+                        <td>
+                            <button class="editar {% if not administrador.admin_permissions.can_grant_permissions %}deshabilitado{% endif %}"
+                                    onclick="editAdmin({{ administrador.id }})"
+                                    {% if not administrador.admin_permissions.can_grant_permissions %}disabled{% endif %}>
+                                Editar
+                            </button>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </main>
+
+    <!-- Modal para editar administrador -->
+    <div id="editAdminModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Editar Permisos del Administrador</h2>
+            <form id="editAdminForm">
+                <input type="hidden" id="adminId">
+                <label for="adminName">Nombre:</label>
+                <input type="text" id="adminName" disabled>
+
+                <label>
+                    <input type="checkbox" id="canEditUsers"> Editar Usuarios
+                </label>
+                <label>
+                    <input type="checkbox" id="canDeleteUsers"> Eliminar Usuarios
+                </label>
+                <label>
+                    <input type="checkbox" id="canEditAlojamientos"> Editar Alojamientos
+                </label>
+                <label>
+                    <input type="checkbox" id="canDeleteAlojamientos"> Eliminar Alojamientos
+                </label>
+                <label>
+                    <input type="checkbox" id="canGrantPermissions"> Ceder Permisos
+                </label>
+
+                <button type="button" onclick="saveChanges()">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         const menuButton = document.getElementById('menuButton');
@@ -254,6 +360,76 @@
                     }
                 }
             }
+        }
+
+        function openModal(adminId, adminName, permissions) {
+            document.getElementById('adminId').value = adminId;
+            document.getElementById('adminName').value = adminName;
+            document.getElementById('canEditUsers').checked = permissions.can_edit_users;
+            document.getElementById('canDeleteUsers').checked = permissions.can_delete_users;
+            document.getElementById('canEditAlojamientos').checked = permissions.can_edit_alojamientos;
+            document.getElementById('canDeleteAlojamientos').checked = permissions.can_delete_alojamientos;
+            document.getElementById('canGrantPermissions').checked = permissions.can_grant_permissions;
+
+            document.getElementById('editAdminModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('editAdminModal').style.display = 'none';
+        }
+
+        function saveChanges() {
+            const adminId = document.getElementById('adminId').value;
+            const canEditUsers = document.getElementById('canEditUsers').checked;
+            const canDeleteUsers = document.getElementById('canDeleteUsers').checked;
+            const canEditAlojamientos = document.getElementById('canEditAlojamientos').checked;
+            const canDeleteAlojamientos = document.getElementById('canDeleteAlojamientos').checked;
+            const canGrantPermissions = document.getElementById('canGrantPermissions').checked;
+
+            fetch(`/permissions/${adminId}/update/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    can_edit_users: canEditUsers,
+                    can_delete_users: canDeleteUsers,
+                    can_edit_alojamientos: canEditAlojamientos,
+                    can_delete_alojamientos: canDeleteAlojamientos,
+                    can_grant_permissions: canGrantPermissions
+                })
+            }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Cambios guardados exitosamente');
+                    closeModal();
+                    location.reload();  // Recargar la página para reflejar los cambios.
+                } else {
+                    alert('Error al guardar los cambios');
+                }
+            });
+        }
+
+
+        function editAdmin(adminId) {
+            console.log("Intentando abrir modal para el administrador ID:", adminId);
+            const adminName = document.querySelector(`#admin-name-${adminId}`).innerText;
+            const permissions = {
+                can_edit_users: document.querySelector(`#edit-users-${adminId}`).innerText === "Sí",
+                can_delete_users: document.querySelector(`#delete-users-${adminId}`).innerText === "Sí",
+                can_edit_alojamientos: document.querySelector(`#edit-alojamientos-${adminId}`).innerText === "Sí",
+                can_delete_alojamientos: document.querySelector(`#delete-alojamientos-${adminId}`).innerText === "Sí",
+                can_grant_permissions: document.querySelector(`#grant-permissions-${adminId}`).innerText === "Sí",
+            };
+            console.log("Permisos del administrador:", permissions);
+
+            openModal(adminId, adminName, permissions);
+        }
+
+        
+        function cerrarModal() {
+            document.getElementById('editAdminModal').style.display = 'none';
         }
     </script>
 </body>

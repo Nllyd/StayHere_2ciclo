@@ -299,7 +299,7 @@
             {% endif %}
         </div>
 
-        <div id="miModal" class="modal">
+        <div id="EditHabitacionesModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="cerrarModal()">&times;</span>
                 <h2>Editar Alojamiento</h2>
@@ -379,12 +379,12 @@
             document.getElementById('longitud').value = longitud;
 
             // Mostrar el modal
-            document.getElementById('miModal').style.display = 'block';
+            document.getElementById('EditHabitacionesModal').style.display = 'block';
         }
 
         function cerrarModal() {
             // Cerrar el modal
-            document.getElementById('miModal').style.display = 'none';
+            document.getElementById('EditHabitacionesModal').style.display = 'none';
         }
 
         function guardarCambios() {

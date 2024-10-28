@@ -267,29 +267,33 @@ def actualizar_usuario(request):
     if request.method == 'POST':
         usuario_id = request.POST.get('id')
 
-        # Verificar si el usuario tiene permiso para editar usuarios
         if not request.user.admin_permissions.can_edit_users:
             return HttpResponseForbidden("No tienes permiso para editar usuarios.")
 
         nombre = request.POST.get('nombre')
         email = request.POST.get('email')
         telefono = request.POST.get('telefono')
-        edad = request.POST.get('edad')
+        fecha_nacimiento = request.POST.get('fecha_nacimiento')
+        is_admin = request.POST.get('is_admin') == 'true'
 
         try:
             usuario = Usuario.objects.get(id=usuario_id)
+
             usuario.nombre = nombre
             usuario.email = email
             usuario.telefono = telefono
-            usuario.edad = edad
+
+            if fecha_nacimiento:
+                try:
+                    usuario.fecha_nacimiento = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
+                except ValueError:
+                    return JsonResponse({'status': 'error', 'message': 'Formato de fecha inválido. Usa el formato AAAA-MM-DD'}, status=400)
+
+            if request.user.admin_permissions.can_grant_permissions:
+                usuario.is_superuser = is_admin
+
             usuario.save()
-            return JsonResponse({'status': 'success', 'usuario': {
-                'id': usuario.id,
-                'nombre': usuario.nombre,
-                'email': usuario.email,
-                'telefono': usuario.telefono,
-                'edad': usuario.edad
-            }})
+            return JsonResponse({'status': 'success', 'message': 'Usuario actualizado correctamente'})
         except Usuario.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado.'}, status=404)
 
@@ -350,31 +354,25 @@ def admin_permisos(request):
 
 
 def generate_captcha(request):
-    # Generar una cadena de 4 letras aleatorias
     captcha_text = ''.join(random.choices(string.ascii_uppercase, k=4))
 
-    # Guardar el captcha en la sesión del usuario o en el caché
-    cache.set(request.session.session_key, captcha_text, 300)  # Validez de 5 minutos
+    cache.set(request.session.session_key, captcha_text, 300)
 
-    # Crear la imagen del captcha
     width, height = 150, 50
     image = Image.new('RGB', (width, height), color=(255, 255, 255))
-    font = ImageFont.truetype("arial.ttf", 36)  # Asegúrate de tener la fuente
+    font = ImageFont.truetype("arial.ttf", 36)
 
     draw = ImageDraw.Draw(image)
 
-    # Dibujar el texto del captcha
     draw.text((10, 5), captcha_text, font=font, fill=(0, 0, 0))
 
-    # Añadir líneas sobre el captcha para hacer más difícil la lectura
-    for _ in range(5):  # Dibujar 5 líneas
+    for _ in range(5):
         x1 = random.randint(0, width)
         y1 = random.randint(0, height)
         x2 = random.randint(0, width)
         y2 = random.randint(0, height)
         draw.line(((x1, y1), (x2, y2)), fill=(0, 0, 0), width=2)
 
-    # Convertir la imagen a formato de bytes para devolverla como respuesta
     buffer = BytesIO()
     image.save(buffer, format='PNG')
     buffer.seek(0)
@@ -431,10 +429,28 @@ def eliminar_alojamiento(request):
             return JsonResponse({'status': 'error', 'message': 'Alojamiento no encontrado'}, status=404)
     return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
 
+def update_permission(request, admin_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            admin_permission = AdminPermissions.objects.get(usuario_id=admin_id)
+
+            # Iterar sobre los datos y actualizar los atributos de permisos
+            for key, value in data.items():
+                if hasattr(admin_permission, key):
+                    setattr(admin_permission, key, value)
+
+            admin_permission.save()
+            return JsonResponse({'success': True, 'message': 'Permiso actualizado exitosamente'})
+        except AdminPermissions.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Administrador no encontrado'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Método no permitido'})
+
+
+
 #HTTP PARA FLUTTER
-
-
-
 
 @api_view(['GET'])
 def get_csrf_token(request):
@@ -451,27 +467,23 @@ def create_usuario(request):
     telefono = data.get('telefono')
     fecha_nacimiento_str = data.get('fecha_nacimiento')
 
-    # Verificar si todos los campos requeridos están presentes
     if not email or not password or not nombre or not telefono or not fecha_nacimiento_str:
         return Response({'error': 'Todos los campos son requeridos'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Convertir 'fecha_nacimiento' de string a objeto 'date'
     try:
         fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, '%Y-%m-%d').date()  # Formato 'YYYY-MM-DD'
     except ValueError:
         return Response({'error': 'Formato de fecha inválido. Usa el formato AAAA-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Verificar si el email ya está registrado
     if Usuario.objects.filter(email=email).exists():
         return Response({'error': 'El correo ya está registrado'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Crear el usuario con la fecha de nacimiento ya convertida
         usuario = Usuario.objects.create_user(
             email=email,
             nombre=nombre,
             telefono=telefono,
-            fecha_nacimiento=fecha_nacimiento,  # Este es un objeto 'date'
+            fecha_nacimiento=fecha_nacimiento,
             password=password
         )
         usuario.save()
