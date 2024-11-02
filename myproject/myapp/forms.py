@@ -10,3 +10,4 @@ class ImagenUsuarioForm(forms.ModelForm):
     class Meta:
         model = ImagenUsuario
         fields = ['imagen']
+

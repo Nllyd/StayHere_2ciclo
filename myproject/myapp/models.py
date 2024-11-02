@@ -4,25 +4,35 @@ from django.conf import settings
 from datetime import date
 
 class MyUserManager(BaseUserManager):
-    def create_user(self, email, nombre, telefono, fecha_nacimiento=None, password=None):
+    def create_user(self, email, nombre, telefono, tipo_usuario, fecha_nacimiento=None, password=None, dni=None):
         if not email:
             raise ValueError("El usuario debe tener un correo electrónico")
         
-        if fecha_nacimiento:
-            today = date.today()
-            edad = today.year - fecha_nacimiento.year - ((today.month, today.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
-        else:
-            edad = None
-
         email = self.normalize_email(email)
-        user = self.model(email=email, nombre=nombre, telefono=telefono, fecha_nacimiento=fecha_nacimiento, username=email)
+        user = self.model(
+            email=email,
+            nombre=nombre,
+            telefono=telefono,
+            tipo_usuario=tipo_usuario,
+            fecha_nacimiento=fecha_nacimiento,
+            dni=dni,
+            username=email  # Usamos el email como username
+        )
         
         user.set_password(password)
         user.save(using=self._db)
         return user
     
-    def create_superuser(self, email, nombre, telefono, fecha_nacimiento=None, password=None):
-        user = self.create_user(email=email, nombre=nombre, telefono=telefono, fecha_nacimiento=fecha_nacimiento, password=password)
+    def create_superuser(self, email, nombre, telefono, tipo_usuario='administrador', fecha_nacimiento=None, password=None, dni=None):
+        user = self.create_user(
+            email=email,
+            nombre=nombre,
+            telefono=telefono,
+            tipo_usuario=tipo_usuario,
+            fecha_nacimiento=fecha_nacimiento,
+            password=password,
+            dni=dni,
+        )
         user.is_admin = True
         user.is_superuser = True
         user.is_staff = True
@@ -30,30 +40,31 @@ class MyUserManager(BaseUserManager):
         return user
 
 class Usuario(AbstractUser):
+    TIPOS_USUARIO = [
+        ('estudiante', 'Estudiante'),
+        ('administrador', 'Administrador'),
+    ]
+    
+    # Campos personalizados
     username = models.CharField(max_length=255, unique=True, null=True, blank=True)
     email = models.EmailField(unique=True)
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100)  # Campo para el nombre completo
     telefono = models.CharField(max_length=15)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True)
     mostrar_whatsapp = models.BooleanField(default=False)
+    tipo_usuario = models.CharField(max_length=20, choices=TIPOS_USUARIO, default='estudiante')
+    dni = models.CharField(max_length=8, null=True, blank=True)
+    verification_code = models.CharField(max_length=8, null=True, blank=True)
+    is_verified = models.BooleanField(default=False)
 
     objects = MyUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['nombre', 'telefono', 'fecha_nacimiento']
-
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='custom_user_groups'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='custom_user_permissions'
-    )
+    REQUIRED_FIELDS = ['nombre', 'telefono', 'fecha_nacimiento', 'tipo_usuario']
 
     def __str__(self):
-        return self.email
+        return f"{self.email} - {self.get_tipo_usuario_display()}"
 
     @property
     def edad(self):
@@ -61,7 +72,6 @@ class Usuario(AbstractUser):
             today = date.today()
             return today.year - self.fecha_nacimiento.year - ((today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
         return None
-
 
 class Alojamiento(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

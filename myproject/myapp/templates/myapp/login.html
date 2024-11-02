@@ -241,6 +241,32 @@
         <p class="register-link">¿Aún no estás registrado? <a href="{% url 'register' %}">Regístrate aquí</a></p>
     </div>
 
+    <!-- Modal de Verificación -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="verificationModalLabel">Verificación de Correo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="verificationForm" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="verification_code" class="form-label">Introduce tu código de verificación:</label>
+                            <input type="text" class="form-control" id="verification_code" name="verification_code" required>
+                            <div id="verificationError" style="color: red; display: none;"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Verificar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         // Botón de menú lateral
         const menuButton = document.getElementById('menuButton');
@@ -261,6 +287,57 @@
         function reloadCaptcha() {
             document.getElementById('captcha_image').src = "{% url 'captcha' %}?" + Math.random();
         }
+
+        $(document).ready(function() {
+            // Obtener el token CSRF
+            const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+
+            // Manejar el envío del formulario de inicio de sesión
+            $('form').on('submit', function(event) {
+                event.preventDefault(); // Prevenir el envío normal del formulario
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken, // Incluir el token CSRF aquí
+                    success: function(response) {
+                        if (response.success === false) {
+                            // Manejar errores en el inicio de sesión
+                            if (response.redirect) {
+                                window.location.href = response.redirect; // Redirigir según la respuesta
+                            } else {
+                                alert(response.error); // Mostrar el error
+                            }
+                        } else {
+                            // Redirigir a la página correspondiente según el tipo de usuario
+                            window.location.href = response.redirect; // Redirigir al home o a la página de verificación
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Error en el servidor. Intenta más tarde.');
+                    }
+                });
+            });
+
+            // Manejar el envío del formulario de verificación
+            $('#verificationForm').on('submit', function(event) {
+                event.preventDefault(); // Prevenir el envío normal del formulario
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'verification_code' %}",  // URL de verificación
+                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken, // Incluir el token CSRF aquí
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = "{% url 'home' %}"; // Redirigir a home si la verificación es exitosa
+                        } else {
+                            $('#verificationError').text(response.error).show(); // Mostrar error en el modal
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#verificationError').text('Error en el servidor.').show();
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'myapp/images/Imagenes StayHere/PandaRojo_Casa.png' %}">
+    <title>Mensaje de Verificación</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Tus datos deben ser verificados</h2>
+        <p>Se te enviará un correo cuando puedas ingresar.</p>
+        <a href="{% url 'login' %}" class="btn btn-primary">Volver a Inicio de Sesión</a>
+    </div>
+</body>
+</html>

@@ -57,11 +57,6 @@
             background-color: #3C4B55;
         }
 
-        .menu-button i {
-            font-size: 24px;
-            color: white;
-        }
-
         .sidebar {
             background-color: #212F38;
             width: 200px;
@@ -90,14 +85,6 @@
             width: 100%;
             border-radius: 20px;
             transition: background-color 0.3s;
-        }
-
-        .sidebar a i {
-            margin-right: 10px;
-        }
-
-        .sidebar a:hover {
-            background-color: #3C4B55;
         }
 
         .container {
@@ -199,7 +186,7 @@
     <!-- Formulario de registro -->
     <div class="container">
         <h2>Registrarse</h2>
-    
+
         <!-- Mostrar mensaje de error si existe -->
         {% if error %}
         <div class="alert alert-danger" role="alert">
@@ -209,10 +196,39 @@
         
         <form method="post" action="{% url 'register' %}">
             {% csrf_token %}
+
+            <!-- Tipo de usuario -->
             <div class="form-group">
-                <label for="email">Correo Electrónico</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Introduce tu correo electrónico" required>
+                <label for="tipo_usuario">Tipo de Usuario</label>
+                <div>
+                    <input type="radio" id="estudiante" name="tipo_usuario" value="estudiante" required onclick="toggleFields()">
+                    <label for="estudiante">Estudiante</label>
+                    <input type="radio" id="arrendador" name="tipo_usuario" value="arrendador" required onclick="toggleFields()">
+                    <label for="arrendador">Arrendador</label>
+                </div>
             </div>
+
+            <div class="form-group" id="estudiante-email-group" style="display: none;">
+                <label for="student_email_prefix" class="form-label">Correo Electrónico</label>
+                <div class="row">
+                    <div class="col-6">
+                        <input type="text" class="form-control" id="student_email_prefix" name="student_email_prefix" placeholder="Introduce tu correo">
+                    </div>
+                    <div class="col-6">
+                        <select id="student_email_domain" class="form-select" name="student_email_domain">
+                            <option value="@tecsup.edu.pe">@tecsup.edu.pe</option>
+                            <option value="@utp.edu.pe">@utp.edu.pe</option>
+                            <option value="@unmsm.edu.pe">@unmsm.edu.pe</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group" id="arrendador-email-group" style="display: none;">
+                <label for="arrendador_email">Correo Electrónico</label>
+                <input type="text" class="form-control" id="arrendador_email" name="arrendador_email" placeholder="Introduce tu correo electrónico">
+            </div>
+
             <div class="form-group">
                 <label for="password">Contraseña</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Introduce tu contraseña" required>
@@ -229,7 +245,12 @@
                 <label for="fecha_nacimiento">Fecha de Nacimiento</label>
                 <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
             </div>
-            
+
+            <div class="form-group" id="dni-field" style="display: none;">
+                <label for="dni">DNI</label>
+                <input type="text" class="form-control" id="dni" name="dni" placeholder="Introduce tu DNI" maxlength="8" pattern="\d{8}">
+            </div>
+
             <!-- Captcha -->
             <div class="captcha">
                 <label for="captcha">Captcha:</label>
@@ -239,15 +260,18 @@
                 </div>
                 <input type="text" id="captcha" name="captcha" class="form-control" placeholder="Introduce el captcha en mayúsculas" required>
             </div>
-    
+        
             <button type="submit" class="btn btn-primary btn-block mt-3">Registrarse</button>
         </form>
-    
+        
         <hr class="hr">
-    
+        
         <p class="register-link">¿Ya tienes una cuenta? <a href="{% url 'login' %}">Iniciar sesión aquí</a></p>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         // Botón de menú lateral
         const menuButton = document.getElementById('menuButton');
@@ -265,26 +289,40 @@
             sidebarVisible = !sidebarVisible;
         });
 
+        // Mostrar campos según tipo de usuario
+        function toggleFields() {
+            const isStudent = document.getElementById('estudiante').checked;
+            if (isStudent) {
+                showStudentFields();
+            } else {
+                showArrendadorFields();
+            }
+        }
+
+        function showStudentFields() {
+            document.getElementById('estudiante-email-group').style.display = 'block';
+            document.getElementById('arrendador-email-group').style.display = 'none';
+            document.getElementById('dni-field').style.display = 'none';
+        }
+
+        function showArrendadorFields() {
+            document.getElementById('estudiante-email-group').style.display = 'none';
+            document.getElementById('arrendador-email-group').style.display = 'block';
+            document.getElementById('dni-field').style.display = 'block';
+        }
+
+        // Combinar correo electrónico para estudiantes
+        document.getElementById('student_email_prefix').addEventListener('input', function() {
+            const prefix = document.getElementById('student_email_prefix').value;
+            const domain = document.getElementById('student_email_domain').value;
+            document.getElementById('arrendador_email').value = prefix + domain;
+        });
+
         // Recargar captcha
         function reloadCaptcha() {
             document.getElementById('captcha_image').src = "{% url 'captcha' %}?" + Math.random();
         }
 
-        // Mostrar/esconder contraseña
-        const passwordInput = document.getElementById('password');
-        const showPasswordIcon = document.getElementById('show-password');
-
-        showPasswordIcon.addEventListener('click', function() {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                showPasswordIcon.classList.remove('bi-eye-slash');
-                showPasswordIcon.classList.add('bi-eye');
-            } else {
-                passwordInput.type = 'password';
-                showPasswordIcon.classList.remove('bi-eye');
-                showPasswordIcon.classList.add('bi-eye-slash');
-            }
-        });
     </script>
 </body>
 </html>

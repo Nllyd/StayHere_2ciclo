@@ -27,6 +27,8 @@ urlpatterns = [
     path('eliminar_alojamiento/', eliminar_alojamiento, name='eliminar_alojamiento'),
     path('alojamiento/editar/<int:alojamiento_id>/', editar_alojamiento_view, name='editar_alojamiento'),
     path('permissions/<int:admin_id>/update/', update_permission, name='update_permission'),
+    path('verification_code/', verification_code_view, name='verification_code'),
+    path('arrendador_verification_message/', views.arrendador_verification_message_view, name='arrendador_verification_message'),
 
     #Tokens de validacion
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),

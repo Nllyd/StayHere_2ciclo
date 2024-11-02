@@ -70,25 +70,34 @@ def login_view(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
-        user_captcha = request.POST['captcha']  # Captura el captcha que el usuario ingresó
+        user_captcha = request.POST['captcha']
 
         # Verificar el captcha almacenado en caché
         captcha_stored = cache.get(request.session.session_key)
         if user_captcha != captcha_stored:
-            return render(request, 'myapp/login.html', {'error': 'Captcha incorrecto'})
+            return JsonResponse({'success': False, 'error': 'Captcha incorrecto'})
 
         user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
             messages.success(request, 'Logueo exitoso')
 
-            # Verifica si el usuario es superuser
-            if user.is_superuser:
-                return redirect('admin_users')  # Redirige a la vista de admin_users si es superuser
-            else:
-                return redirect('home')  # Redirige a home si no es superuser
+            # Verifica el tipo de usuario y el estado de verificación
+            if user.tipo_usuario == 'estudiante':
+                if user.is_verified:
+                    return JsonResponse({'success': True, 'redirect': '/home'})  # Redirigir a home si es estudiante y verificado
+                else:
+                    return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})  # Redirigir a la página de mensaje si no está verificado
+
+            elif user.tipo_usuario == 'arrendador':
+                if user.is_verified:
+                    return JsonResponse({'success': True, 'redirect': '/home'})  # Redirigir a home si es arrendador y verificado
+                else:
+                    return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})  # Redirigir a la página de mensaje si no está verificado
+
         else:
-            return render(request, 'myapp/login.html', {'error': 'Correo o contraseña incorrectos'})
+            return JsonResponse({'success': False, 'error': 'Correo o contraseña incorrectos'})
+
     return render(request, 'myapp/login.html')
 
 @login_required
@@ -125,22 +134,31 @@ def nuevo_view(request):
     
     return render(request, 'myapp/nuevo.html')
 
+from django.core.mail import send_mail
+from django.conf import settings
+
 def register_view(request):
     if request.method == 'POST':
         nombre = request.POST['nombre']
-        email = request.POST['email']
         telefono = request.POST['telefono']
         password = request.POST['password']
         captcha_user_input = request.POST['captcha']
-
-        # Capturar 'fecha_nacimiento' como un string del formulario
         fecha_nacimiento_str = request.POST['fecha_nacimiento']
-
-        # Convertir 'fecha_nacimiento' de string a objeto 'date'
+        
         try:
-            fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, '%Y-%m-%d').date()  # Convertir string a date
+            fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, '%Y-%m-%d').date()
         except ValueError:
             return render(request, 'myapp/register.html', {'error': 'Formato de fecha incorrecto. Usa AAAA-MM-DD'})
+
+        dni = request.POST.get('dni', None)
+        tipo_usuario = request.POST['tipo_usuario']  # Captura el tipo de usuario
+
+        if tipo_usuario == 'estudiante':
+            student_email_prefix = request.POST['student_email_prefix']
+            student_email_domain = request.POST['student_email_domain']
+            email = student_email_prefix + student_email_domain
+        else:  # Para arrendador
+            email = request.POST.get('arrendador_email')
 
         captcha_stored = cache.get(request.session.session_key)
 
@@ -156,22 +174,44 @@ def register_view(request):
                 nombre=nombre,
                 email=email,
                 telefono=telefono,
-                fecha_nacimiento=fecha_nacimiento,  # Ya es un objeto 'date'
+                fecha_nacimiento=fecha_nacimiento,
+                dni=dni,
+                tipo_usuario=tipo_usuario,  # Agregar el tipo de usuario
                 password=password
             )
             usuario.save()
 
-            user = authenticate(request, username=email, password=password)
-            if user is not None:
-                login(request, user)
-                messages.success(request, 'Registro y logueo exitoso.')
-                return redirect('home')
+            # Enviar el código de verificación solo si es estudiante
+            if tipo_usuario == 'estudiante':
+                verification_code = generate_verification_code()
+                send_mail(
+                    'Código de Verificación',
+                    f'Tu código de verificación es: {verification_code}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+
+                # Guardar el código en el usuario para validación posterior
+                usuario.verification_code = verification_code
+                usuario.is_verified = False  # Asegúrate de tener este campo en tu modelo
+                usuario.save()
+
+                messages.success(request, 'Registro exitoso. Por favor, verifica tu correo electrónico.')
+                return JsonResponse({'success': True, 'redirect': 'verification_code'})  # Redirigir al modal de verificación
+            else:
+                # Para arrendadores, solo guardamos el usuario sin enviar el correo
+                usuario.is_verified = False
+                usuario.save()
+                messages.success(request, 'Registro exitoso. Tus datos deben ser verificados. Se te enviará un correo cuando puedas ingresar.')
+                return redirect('arrendador_verification_message')  # Redirigir a la página con el mensaje para arrendadores
 
         except IntegrityError:
             return render(request, 'myapp/register.html', {'error': 'Error al crear el usuario'})
 
     captcha_text = generate_captcha(request)
     return render(request, 'myapp/register.html', {'captcha': captcha_text})
+
 
 @login_required
 def user_view(request):
@@ -245,7 +285,59 @@ def editar_alojamiento_view(request, alojamiento_id):
 
     return render(request, 'myapp/editar_alojamiento.html', {'alojamiento': alojamiento})
 
-# ADMINISTRADOR
+
+
+# --------------------------- CODIGOS DE VALIDACION ---------------------------
+@csrf_exempt
+def verification_code_view(request):
+    # Asegúrate de que el usuario esté autenticado
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            code_entered = request.POST.get('verification_code')
+            if code_entered == request.user.verification_code:
+                request.user.is_verified = True
+                request.user.save()
+                messages.success(request, 'Correo verificado exitosamente.')
+                return JsonResponse({'success': True})  # Retornar éxito si la verificación es correcta
+            else:
+                return JsonResponse({'success': False, 'error': 'Código de verificación incorrecto.'})
+
+    return JsonResponse({'success': False, 'error': 'Usuario no autenticado.'})
+
+def arrendador_verification_message_view(request):
+    return render(request, 'myapp/arrendador_verification_message.html')
+
+def generate_verification_code(length=8):
+    characters = string.ascii_letters + string.digits  # Letras y números
+    return ''.join(random.choice(characters) for _ in range(length))
+
+def generate_captcha(request):
+    captcha_text = ''.join(random.choices(string.ascii_uppercase, k=4))
+
+    cache.set(request.session.session_key, captcha_text, 300)
+
+    width, height = 150, 50
+    image = Image.new('RGB', (width, height), color=(255, 255, 255))
+    font = ImageFont.truetype("arial.ttf", 36)
+
+    draw = ImageDraw.Draw(image)
+
+    draw.text((10, 5), captcha_text, font=font, fill=(0, 0, 0))
+
+    for _ in range(5):
+        x1 = random.randint(0, width)
+        y1 = random.randint(0, height)
+        x2 = random.randint(0, width)
+        y2 = random.randint(0, height)
+        draw.line(((x1, y1), (x2, y2)), fill=(0, 0, 0), width=2)
+
+    buffer = BytesIO()
+    image.save(buffer, format='PNG')
+    buffer.seek(0)
+
+    return HttpResponse(buffer, content_type='image/png')
+
+# --------------------------- ADMINISTRADOR ---------------------------
 
 # Decorador para restringir acceso solo a superusuarios
 def superuser_required(view_func):
@@ -353,31 +445,6 @@ def admin_permisos(request):
     return render(request, 'myapp/admin_permisos.html', context)
 
 
-def generate_captcha(request):
-    captcha_text = ''.join(random.choices(string.ascii_uppercase, k=4))
-
-    cache.set(request.session.session_key, captcha_text, 300)
-
-    width, height = 150, 50
-    image = Image.new('RGB', (width, height), color=(255, 255, 255))
-    font = ImageFont.truetype("arial.ttf", 36)
-
-    draw = ImageDraw.Draw(image)
-
-    draw.text((10, 5), captcha_text, font=font, fill=(0, 0, 0))
-
-    for _ in range(5):
-        x1 = random.randint(0, width)
-        y1 = random.randint(0, height)
-        x2 = random.randint(0, width)
-        y2 = random.randint(0, height)
-        draw.line(((x1, y1), (x2, y2)), fill=(0, 0, 0), width=2)
-
-    buffer = BytesIO()
-    image.save(buffer, format='PNG')
-    buffer.seek(0)
-
-    return HttpResponse(buffer, content_type='image/png')
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -450,7 +517,7 @@ def update_permission(request, admin_id):
 
 
 
-#HTTP PARA FLUTTER
+# --------------------------- HTTP PARA FLUTTER ---------------------------
 
 @api_view(['GET'])
 def get_csrf_token(request):
