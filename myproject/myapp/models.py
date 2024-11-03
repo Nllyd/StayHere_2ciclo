@@ -23,12 +23,12 @@ class MyUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
     
-    def create_superuser(self, email, nombre, telefono, tipo_usuario='administrador', fecha_nacimiento=None, password=None, dni=None):
+    def create_superuser(self, email, nombre, telefono, fecha_nacimiento=None, password=None, dni=None):
         user = self.create_user(
             email=email,
             nombre=nombre,
             telefono=telefono,
-            tipo_usuario=tipo_usuario,
+            tipo_usuario='Administrador',  # Tipo de usuario en mayúscula inicial
             fecha_nacimiento=fecha_nacimiento,
             password=password,
             dni=dni,
@@ -39,21 +39,23 @@ class MyUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
 class Usuario(AbstractUser):
     TIPOS_USUARIO = [
-        ('estudiante', 'Estudiante'),
-        ('administrador', 'Administrador'),
+        ('Estudiante', 'Estudiante'),
+        ('Administrador', 'Administrador'),
+        ('Arrendador', 'Arrendador'),
     ]
-    
+
     # Campos personalizados
     username = models.CharField(max_length=255, unique=True, null=True, blank=True)
     email = models.EmailField(unique=True)
-    nombre = models.CharField(max_length=100)  # Campo para el nombre completo
+    nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True)
     mostrar_whatsapp = models.BooleanField(default=False)
-    tipo_usuario = models.CharField(max_length=20, choices=TIPOS_USUARIO, default='estudiante')
+    tipo_usuario = models.CharField(max_length=20, choices=TIPOS_USUARIO, default='Estudiante')
     dni = models.CharField(max_length=8, null=True, blank=True)
     verification_code = models.CharField(max_length=8, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
@@ -72,6 +74,21 @@ class Usuario(AbstractUser):
             today = date.today()
             return today.year - self.fecha_nacimiento.year - ((today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
         return None
+
+    def save(self, *args, **kwargs):
+    # Si el usuario es superusuario, aseguramos que el tipo de usuario sea "Administrador"
+        if self.is_superuser:
+            self.tipo_usuario = 'Administrador'
+        else:
+            # Si el usuario no es superusuario y el tipo actual es "Administrador", restauramos su tipo original
+            if self._state.adding is False and Usuario.objects.filter(pk=self.pk).exists():
+                original_tipo = Usuario.objects.get(pk=self.pk).tipo_usuario
+                # Cambiar a "Estudiante" solo si el tipo original era "Administrador"
+                if self.tipo_usuario == 'Administrador':
+                    self.tipo_usuario = original_tipo if original_tipo != 'Administrador' else 'Estudiante'
+
+        super().save(*args, **kwargs)
+
 
 class Alojamiento(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

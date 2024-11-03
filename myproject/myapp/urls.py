@@ -29,6 +29,8 @@ urlpatterns = [
     path('permissions/<int:admin_id>/update/', update_permission, name='update_permission'),
     path('verification_code/', verification_code_view, name='verification_code'),
     path('arrendador_verification_message/', views.arrendador_verification_message_view, name='arrendador_verification_message'),
+    path('validar_rechazar_usuario/', validar_rechazar_usuario, name='validar_rechazar_usuario'),
+
 
     #Tokens de validacion
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),

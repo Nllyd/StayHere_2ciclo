@@ -71,7 +71,7 @@ def login_view(request):
         email = request.POST['email']
         password = request.POST['password']
         user_captcha = request.POST['captcha']
-
+        
         # Verificar el captcha almacenado en caché
         captcha_stored = cache.get(request.session.session_key)
         if user_captcha != captcha_stored:
@@ -81,15 +81,19 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, 'Logueo exitoso')
-
+            
+            if user.is_superuser:
+                return JsonResponse({'success': True, 'redirect': '/admin_users'})
+        
             # Verifica el tipo de usuario y el estado de verificación
-            if user.tipo_usuario == 'estudiante':
+            # Verificar el tipo de usuario y redirigir adecuadamente
+            if user.tipo_usuario.lower() == 'estudiante':
                 if user.is_verified:
-                    return JsonResponse({'success': True, 'redirect': '/home'})  # Redirigir a home si es estudiante y verificado
+                    return JsonResponse({'success': True, 'redirect': '/home'})
                 else:
-                    return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})  # Redirigir a la página de mensaje si no está verificado
+                    return JsonResponse({'success': True, 'redirect': '', 'show_verification_modal': True})  # Redirigir a la página de mensaje si no está verificado
 
-            elif user.tipo_usuario == 'arrendador':
+            elif user.tipo_usuario.lower() == 'arrendador':
                 if user.is_verified:
                     return JsonResponse({'success': True, 'redirect': '/home'})  # Redirigir a home si es arrendador y verificado
                 else:
@@ -180,7 +184,7 @@ def register_view(request):
                 password=password
             )
             usuario.save()
-
+            
             # Enviar el código de verificación solo si es estudiante
             if tipo_usuario == 'estudiante':
                 verification_code = generate_verification_code()
@@ -198,7 +202,7 @@ def register_view(request):
                 usuario.save()
 
                 messages.success(request, 'Registro exitoso. Por favor, verifica tu correo electrónico.')
-                return JsonResponse({'success': True, 'redirect': 'verification_code'})  # Redirigir al modal de verificación
+                return JsonResponse({'success': True, 'redirect': '/login'})  # Redirigir a /login
             else:
                 # Para arrendadores, solo guardamos el usuario sin enviar el correo
                 usuario.is_verified = False
@@ -337,6 +341,66 @@ def generate_captcha(request):
 
     return HttpResponse(buffer, content_type='image/png')
 
+@csrf_exempt
+def validar_rechazar_usuario(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        usuario_id = data.get('id')
+        accion = data.get('accion')
+
+        try:
+            usuario = Usuario.objects.get(id=usuario_id)
+            
+            # Verificar si la acción es de validación
+            if accion == 'validar':
+                usuario.is_verified = True
+                usuario.is_active = True  # Asegúrate de activar el usuario si es necesario
+                usuario.save()
+                
+                # Enviar correo de aceptación
+                send_mail(
+                    'Validación Exitosa',
+                    f'Estimado {usuario.nombre},\n\n'
+                    'Nos complace informarle que su cuenta ha sido verificada exitosamente. '
+                    'Ahora tiene acceso completo a nuestra plataforma.\n\n'
+                    'Saludos,\nEquipo de Soporte',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [usuario.email],
+                    fail_silently=False,
+                )
+                
+                return JsonResponse({'status': 'success', 'message': 'Usuario verificado correctamente.'})
+            
+            # Verificar si la acción es de rechazo
+            elif accion == 'rechazar':
+                usuario.is_verified = False
+                usuario.is_active = False  # Marcar como inactivo si es rechazado
+                usuario.save()
+                
+                # Enviar correo de rechazo
+                send_mail(
+                    'Cuenta No Verificada',
+                    f'Estimado {usuario.nombre},\n\n'
+                    'Lamentamos informarle que su cuenta no cumple con los requisitos de verificación '
+                    'y no ha sido aprobada. Si tiene alguna consulta o desea más información, por favor '
+                    'contáctenos a través de nuestro soporte.\n\n'
+                    'Atentamente,\nEquipo de Soporte',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [usuario.email],
+                    fail_silently=False,
+                )
+                
+                return JsonResponse({'status': 'success', 'message': 'Usuario no verificado y marcado como inactivo.'})
+            
+            # En caso de una acción desconocida
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Acción no reconocida.'}, status=400)
+
+        except Usuario.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado.'}, status=404)
+
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
+
 # --------------------------- ADMINISTRADOR ---------------------------
 
 # Decorador para restringir acceso solo a superusuarios
@@ -367,13 +431,15 @@ def actualizar_usuario(request):
         telefono = request.POST.get('telefono')
         fecha_nacimiento = request.POST.get('fecha_nacimiento')
         is_admin = request.POST.get('is_admin') == 'true'
+        is_active = request.POST.get('is_active') == 'true'
+        tipo_usuario = request.POST.get('tipo_usuario')
 
         try:
             usuario = Usuario.objects.get(id=usuario_id)
-
             usuario.nombre = nombre
             usuario.email = email
             usuario.telefono = telefono
+            usuario.is_active = is_active
 
             if fecha_nacimiento:
                 try:
@@ -381,11 +447,13 @@ def actualizar_usuario(request):
                 except ValueError:
                     return JsonResponse({'status': 'error', 'message': 'Formato de fecha inválido. Usa el formato AAAA-MM-DD'}, status=400)
 
+            usuario.tipo_usuario = tipo_usuario
             if request.user.admin_permissions.can_grant_permissions:
                 usuario.is_superuser = is_admin
 
             usuario.save()
             return JsonResponse({'status': 'success', 'message': 'Usuario actualizado correctamente'})
+
         except Usuario.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Usuario no encontrado.'}, status=404)
 
@@ -429,9 +497,12 @@ def admin_control(request):
     labels = [registro['month'].strftime("%B") for registro in registros_por_mes]
     data = [registro['total'] for registro in registros_por_mes]
 
+    arrendadores_no_verificados = Usuario.objects.filter(tipo_usuario='Arrendador', is_verified=False)
+
     context = {
         'labels': json.dumps(labels),
         'data': json.dumps(data),
+        'arrendadores_no_verificados': arrendadores_no_verificados,
     }
 
     return render(request, 'myapp/admin_control.html', context)

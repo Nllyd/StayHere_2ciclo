@@ -289,27 +289,27 @@
         }
 
         $(document).ready(function() {
-            // Obtener el token CSRF
             const csrftoken = $('[name=csrfmiddlewaretoken]').val();
 
-            // Manejar el envío del formulario de inicio de sesión
             $('form').on('submit', function(event) {
-                event.preventDefault(); // Prevenir el envío normal del formulario
+                event.preventDefault();
                 $.ajax({
                     type: 'POST',
                     url: $(this).attr('action'),
-                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken, // Incluir el token CSRF aquí
+                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken,
                     success: function(response) {
-                        if (response.success === false) {
-                            // Manejar errores en el inicio de sesión
-                            if (response.redirect) {
-                                window.location.href = response.redirect; // Redirigir según la respuesta
-                            } else {
-                                alert(response.error); // Mostrar el error
+                        if (response.success) {
+                            if (response.show_verification_modal) {
+                                $('#verificationModal').modal('show'); // Mostrar el modal
+                            } else if (response.redirect) {
+                                window.location.href = response.redirect;
                             }
                         } else {
-                            // Redirigir a la página correspondiente según el tipo de usuario
-                            window.location.href = response.redirect; // Redirigir al home o a la página de verificación
+                            if (response.redirect) {
+                                window.location.href = response.redirect;
+                            } else {
+                                alert(response.error);
+                            }
                         }
                     },
                     error: function(xhr) {
@@ -318,18 +318,17 @@
                 });
             });
 
-            // Manejar el envío del formulario de verificación
             $('#verificationForm').on('submit', function(event) {
-                event.preventDefault(); // Prevenir el envío normal del formulario
+                event.preventDefault();
                 $.ajax({
                     type: 'POST',
-                    url: "{% url 'verification_code' %}",  // URL de verificación
-                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken, // Incluir el token CSRF aquí
+                    url: "{% url 'verification_code' %}",
+                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken,
                     success: function(response) {
                         if (response.success) {
-                            window.location.href = "{% url 'home' %}"; // Redirigir a home si la verificación es exitosa
+                            window.location.href = "{% url 'home' %}";
                         } else {
-                            $('#verificationError').text(response.error).show(); // Mostrar error en el modal
+                            $('#verificationError').text(response.error).show();
                         }
                     },
                     error: function(xhr) {

@@ -268,38 +268,42 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Nombre</th>
+                    <th onclick="sortTable('nombre')" style="cursor: pointer;">Nombre <span id="nombre-arrow"></span></th>
                     <th>Correo Electrónico</th>
                     <th>Teléfono</th>
                     <th>Edad</th>
                     <th>Activo</th>
-                    <th>Admin</th>
+                    <th onclick="sortTable('tipo_usuario')" style="cursor: pointer;">Tipo de Usuario <span id="tipo_usuario-arrow"></span></th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for usuario in usuarios %}
-                <tr>
-                    <td>{{ usuario.id }}</td>
-                    <td>{{ usuario.nombre }}</td>
-                    <td>{{ usuario.email }}</td>
-                    <td>{{ usuario.telefono }}</td>
-                    <td>{{ usuario.edad }}</td>
-                    <td>{{ usuario.is_active|yesno:"Sí,No" }}</td>
-                    <td>{{ usuario.is_superuser|yesno:"Sí,No" }}</td>
-                    <td class="acciones">
-                        <button class="editar {% if not user.admin_permissions.can_edit_users %}deshabilitado{% endif %}" 
-                            onclick="abrirModal({{ usuario.id }}, '{{ usuario.nombre }}', '{{ usuario.email }}', '{{ usuario.telefono }}', '{{ usuario.fecha_nacimiento|date:'Y-m-d' }}', '{{ usuario.is_active }}', '{{ usuario.is_superuser }}')" 
-                            {% if not user.admin_permissions.can_edit_users %}disabled{% endif %}>
-                            Editar
-                        </button>
-                        <button class="eliminar {% if not user.admin_permissions.can_delete_users %}deshabilitado{% endif %}" onclick="eliminarUsuario({{ usuario.id }})" {% if not user.admin_permissions.can_delete_users %}disabled{% endif %}>Eliminar</button>
-                    </td>
-                </tr>
+                    {% if usuario.is_verified %}
+                        {% if usuario.tipo_usuario != 'Administrador' %}
+                            <tr>
+                                <td>{{ usuario.id }}</td>
+                                <td class="nombre">{{ usuario.nombre }}</td>
+                                <td>{{ usuario.email }}</td>
+                                <td>{{ usuario.telefono }}</td>
+                                <td>{{ usuario.edad }}</td>
+                                <td>{{ usuario.is_active|yesno:"Sí,No" }}</td>
+                                <td class="tipo_usuario">{{ usuario.get_tipo_usuario_display }}</td>
+                                <td class="acciones">
+                                    <button class="editar {% if not user.admin_permissions.can_edit_users %}deshabilitado{% endif %}" 
+                                        onclick="abrirModal({{ usuario.id }}, '{{ usuario.nombre }}', '{{ usuario.email }}', '{{ usuario.telefono }}', '{{ usuario.fecha_nacimiento|date:'Y-m-d' }}', '{{ usuario.is_active }}', '{{ usuario.is_superuser }}')" 
+                                        {% if not user.admin_permissions.can_edit_users %}disabled{% endif %}>
+                                        Editar
+                                    </button>
+                                    <button class="eliminar {% if not user.admin_permissions.can_delete_users %}deshabilitado{% endif %}" onclick="eliminarUsuario({{ usuario.id }})" {% if not user.admin_permissions.can_delete_users %}disabled{% endif %}>Eliminar</button>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endif %}
                 {% empty %}
-                <tr>
-                    <td colspan="8">No hay usuarios disponibles.</td>
-                </tr>
+                    <tr>
+                        <td colspan="8">No hay usuarios disponibles.</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -313,20 +317,35 @@
                     <input type="hidden" id="usuario-id">
                     <label for="nombre">Nombre:</label>
                     <input type="text" id="nombre" required>
+                    
                     <label for="email">Correo Electrónico:</label>
                     <input type="text" id="email" required>
+                    
                     <label for="telefono">Teléfono:</label>
                     <input type="text" id="telefono" required>
+                    
                     <div class="mb-3">
                         <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
                         <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control rounded-input" required>
                     </div>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="isAdmin" name="is_admin">
-                            <label class="form-check-label" for="isAdmin">Administrador</label>
-                        </div>
-                    </div>
+                    
+                    <!-- Combobox para seleccionar el tipo de usuario -->
+                    <label for="tipo_usuario">Tipo de Usuario:</label>
+                    <select id="tipo_usuario" name="tipo_usuario" onchange="actualizarSuperuser()">
+                        <option value="Estudiante">Estudiante</option>
+                        <option value="Arrendador">Arrendador</option>
+                        {% if user.is_superuser %} <!-- Mostrar opción solo para superusuarios -->
+                            <option value="Administrador">Administrador</option>
+                        {% endif %}
+                    </select>
+
+                    <!-- Combobox para establecer el estado Activo -->
+                    <label for="is_active">Activo:</label>
+                    <select id="is_active" name="is_active">
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+
                     <div style="margin-top: 10px;">
                         <button type="button" onclick="guardarCambios()">Guardar Cambios</button>
                     </div>
@@ -383,18 +402,29 @@
             }
         }
 
-        function abrirModal(id, nombre, email, telefono, fecha_nacimiento, isActive, isAdmin) {
+        function abrirModal(id, nombre, email, telefono, fecha_nacimiento, isActive, tipoUsuario) {
             document.getElementById('usuario-id').value = id;
             document.getElementById('nombre').value = nombre;
             document.getElementById('email').value = email;
             document.getElementById('telefono').value = telefono;
             document.getElementById('fecha_nacimiento').value = fecha_nacimiento;
-            document.getElementById('isAdmin').checked = (isAdmin === "Sí" || isAdmin === "true");
+
+            // Establecer el valor del tipo de usuario y el estado de activo en el modal
+            document.getElementById('tipo_usuario').value = tipoUsuario;
+            document.getElementById('is_active').value = isActive === "Sí" ? "true" : "false";
+
             document.getElementById('EditarUsuariosModal').style.display = 'block';
         }
 
         function cerrarModal() {
             document.getElementById('EditarUsuariosModal').style.display = 'none';
+        }
+
+        // Función para actualizar el valor de is_superuser dependiendo del tipo de usuario seleccionado
+        function actualizarSuperuser() {
+            const tipoUsuario = document.getElementById('tipo_usuario').value;
+            // Si el tipo de usuario es "Administrador", establece is_superuser en true
+            document.getElementById('is_superuser').value = tipoUsuario === "Administrador" ? "true" : "false";
         }
 
         function guardarCambios() {
@@ -403,7 +433,9 @@
             let email = document.getElementById('email').value;
             let telefono = document.getElementById('telefono').value;
             let fecha_nacimiento = document.getElementById('fecha_nacimiento').value;
-            let isAdmin = document.getElementById('isAdmin').checked;
+            let tipoUsuario = document.getElementById('tipo_usuario').value;
+            let isAdmin = tipoUsuario === "Administrador" ? "true" : "false";
+            let isActive = document.getElementById('is_active').value;
 
             fetch('{% url "actualizar_usuario" %}', {
                 method: 'POST',
@@ -417,7 +449,9 @@
                     'email': email,
                     'telefono': telefono,
                     'fecha_nacimiento': fecha_nacimiento,
-                    'is_admin': isAdmin
+                    'tipo_usuario': tipoUsuario,
+                    'is_admin': isAdmin,
+                    'is_active': isActive 
                 })
             })
             .then(response => response.json())
@@ -433,6 +467,7 @@
             });
         }
 
+        // Función para manejar el cierre del modal al hacer clic fuera de él
         window.onclick = function(event) {
             let modal = document.getElementById('EditarUsuariosModal');
             if (event.target == modal) {
@@ -474,6 +509,37 @@
                     console.error('Error:', error);
                 });
             }
+        }
+
+        let sortDirection = {
+            nombre: 'asc',
+            tipo_usuario: 'asc'
+        };
+
+        function sortTable(column) {
+            const table = document.getElementById('tabla-usuarios');
+            const rows = Array.from(table.rows).slice(1);  // Omitir encabezado
+            const columnClass = column === 'nombre' ? 'nombre' : 'tipo_usuario';
+            const arrowElement = document.getElementById(`${column}-arrow`);
+            const direction = sortDirection[column] === 'asc' ? 1 : -1;
+
+            // Limpiar las flechas de los encabezados
+            document.getElementById('nombre-arrow').textContent = '';
+            document.getElementById('tipo_usuario-arrow').textContent = '';
+
+            // Ordenar las filas
+            rows.sort((a, b) => {
+                const aText = a.querySelector(`.${columnClass}`).textContent.trim().toLowerCase();
+                const bText = b.querySelector(`.${columnClass}`).textContent.trim().toLowerCase();
+                return aText.localeCompare(bText) * direction;
+            });
+
+            // Actualizar la tabla
+            rows.forEach(row => table.appendChild(row));
+
+            // Actualizar la dirección y flecha de ordenación
+            sortDirection[column] = sortDirection[column] === 'asc' ? 'desc' : 'asc';
+            arrowElement.textContent = sortDirection[column] === 'asc' ? '▲' : '▼';
         }
     </script>
 </body>
