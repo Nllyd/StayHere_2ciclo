@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Configuraciones importantes
 SECRET_KEY = 'django-insecure-o(ghtg5w*^_yxs_9ij9@7#ie7c(b%extdi!s=&^+iu(6*cwzp-'
 DEBUG = True
-ALLOWED_HOSTS = ['192.168.18.12', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['192.168.18.12', '127.0.0.1', 'localhost','stayhere-web.onrender.com']
 
 INSTALLED_APPS = [
     'myapp',
