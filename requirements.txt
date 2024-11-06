@@ -7,3 +7,4 @@ mysqlclient==2.2.4
 gunicorn==23.0.0
 asgiref==3.8.1
 sqlparse==0.5.1
+Pillow
