@@ -13,6 +13,7 @@ INSTALLED_APPS = [
     'myapp',
     'rest_framework',
     'corsheaders',
+    'captcha', #Inclusion de captcha
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -101,9 +102,7 @@ USE_TZ = True
 # CAMBIO EN LOS STATICS PARA PROBAR
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'myproject' / 'myapp' / 'static'
-]
+STATICFILES_DIRS = [BASE_DIR / 'myapp' / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
