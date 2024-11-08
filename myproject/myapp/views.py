@@ -330,8 +330,8 @@ def generate_captcha(request):
     width, height = 150, 50
     image = Image.new('RGB', (width, height), color=(255, 255, 255))
 
-    # Cargar la fuente personalizada ASMAN.ttf
-    font = ImageFont.truetype(settings.FONT_PATH, 36)
+    # Cargar la fuente con la ruta absoluta para diagnóstico
+    font = ImageFont.truetype('/opt/render/project/src/myapp/static/ASMAN.ttf', 36)
 
     # Dibujar el texto en la imagen
     draw = ImageDraw.Draw(image)
@@ -352,7 +352,7 @@ def generate_captcha(request):
 
     # Retornar la imagen como respuesta HTTP
     return HttpResponse(buffer, content_type='image/png')
-
+    
 @csrf_exempt
 def validar_rechazar_usuario(request):
     if request.method == 'POST':
