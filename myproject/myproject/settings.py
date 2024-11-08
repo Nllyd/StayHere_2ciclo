@@ -5,11 +5,11 @@ import os
 # Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_URL = '/myproject/myapp/static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / 'myapp' / 'static',
 ]
-
 # Configuraciones importantes
 SECRET_KEY = 'django-insecure-o(ghtg5w*^_yxs_9ij9@7#ie7c(b%extdi!s=&^+iu(6*cwzp-'
 DEBUG = True
