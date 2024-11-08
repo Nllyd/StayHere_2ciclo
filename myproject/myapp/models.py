@@ -54,11 +54,16 @@ class Usuario(AbstractUser):
     telefono = models.CharField(max_length=15)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True)
-    mostrar_whatsapp = models.BooleanField(default=False)
     tipo_usuario = models.CharField(max_length=20, choices=TIPOS_USUARIO, default='Estudiante')
     dni = models.CharField(max_length=8, null=True, blank=True)
     verification_code = models.CharField(max_length=8, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
+
+    #DATOS DE CONTACTO
+    mostrar_whatsapp = models.BooleanField(default=False)
+    tiktok_url = models.URLField(blank=True, null=True)
+    instagram_url = models.URLField(blank=True, null=True)
+    facebook_url = models.URLField(blank=True, null=True)
 
     objects = MyUserManager()
 
@@ -92,22 +97,33 @@ class Usuario(AbstractUser):
 
 class Alojamiento(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     latitud = models.FloatField()
     longitud = models.FloatField()
     caracteristicas = models.JSONField()
+    DISTRITOS_CHOICES = [
+        ('Ancón', 'Ancón'),
+        ('Carabayllo', 'Carabayllo'),
+        ('Comas', 'Comas'),
+        ('Independencia', 'Independencia'),
+        ('Los Olivos', 'Los Olivos'),
+        ('Puente Piedra', 'Puente Piedra'),
+        ('San Martín de Porres', 'San Martín de Porres'),
+        ('Santa Rosa', 'Santa Rosa'),
+        ('Santa Anita', 'Santa Anita'),
+    ]
+    distrito = models.CharField(max_length=50, choices=DISTRITOS_CHOICES, default='Ancón')
 
     def __str__(self):
-        return self.nombre
+        return f"Alojamiento en {self.distrito}"
 
 class ImagenAlojamiento(models.Model):
     alojamiento = models.ForeignKey(Alojamiento, related_name='imagenes', on_delete=models.CASCADE)
     imagen = models.ImageField(upload_to='alojamientos/')
 
     def __str__(self):
-        return f"Imagen de {self.alojamiento.nombre}"
+        return f"Imagen de {self.alojamiento.distrito}"
 
 class AdminPermissions(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='admin_permissions')

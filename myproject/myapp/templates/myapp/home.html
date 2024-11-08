@@ -282,6 +282,12 @@
             text-overflow: ellipsis;
         }
 
+        .card-distrito {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
         .card-description {
             font-size: 14px;
             color: #4c4c4c;
@@ -360,8 +366,6 @@
             width: 100%;
             height: 100vh; /* Ocupa todo el alto de la pantalla */
         }
-
-
     </style>
 </head>
 <body>
@@ -377,17 +381,26 @@
 
     <div class="sidebar" id="sidebar">
         {% if user.is_authenticated %}
-            <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
-            <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
-            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
-            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+            {% if user.tipo_usuario == 'Arrendador' %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% elif user.tipo_usuario == 'Estudiante' %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% else %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% endif %}
         {% else %}
             <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesion</a>
             <a href="{% url 'login' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
-            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+            <a href="{% url 'login' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
         {% endif %}
-        <hr style="color: rgb(255, 255, 255); width: 150px; border: 2px solid; border-radius: 10px; margin-left: 15px; margin-top: 170px;">
-        <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
     </div>
 
 
@@ -466,288 +479,288 @@
                 <input type="checkbox" id="Restaurante" name="Restaurante" class="filtro">
                 <label for="Restaurante">Restaurante</label>
             </div>
-            <div class="checkbox-group" style="margin-top: 10px;">
-                <input type="checkbox" id="Tendedero" name="Tendedero" class="filtro">
-                <label for="Tendedero">Tendedero</label>
+            <!-- Duplicados eliminados -->
+        </div>
+        <br>    
+        
+        <h3>Filtra en base a tu presupuesto:</h3>
+        <div class="range-slider">
+            <div>
+                <label for="minPriceRange">Min:</label>
+                <input type="range" class="form-range" id="minPriceRange" min="250" max="1500" step="50" value="250">
+                <span id="minPriceRangeValue">250</span>
             </div>
-            <div class="checkbox-group" style="margin-top: 10px;">
-                <input type="checkbox" id="Restaurante" name="Restaurante" class="filtro">
-                <label for="Restaurante">Restaurante</label>
+            <div>
+                <label for="maxPriceRange">Max:</label>
+                <input type="range" class="form-range" id="maxPriceRange" min="250" max="1500" step="50" value="1500">
+                <span id="maxPriceRangeValue">1500</span>
             </div>
+    </div>
+</div>
+
+ <!-- Contenedor de Cards -->
+ <div class="cards-container" id="cards-container">
+    {% for alojamiento in alojamientos %}
+    <div class="card">
+        {% if alojamiento.imagenes.first %}
+        <img src="{{ alojamiento.imagenes.first.imagen.url }}" alt="Imagen de la Habitación">
+        {% else %}
+        <img src="https://via.placeholder.com/200" alt="Imagen no disponible">
+        {% endif %}
+        
+        <div class="card-content">
+            <div class="card-title">
+                {{ alojamiento.usuario.nombre|truncatechars:20 }}
             </div>
-            <br>    
-            
-            <h3>Filtra en base a tu presupuesto:</h3>
-            <div class="range-slider">
-                <div>
-                    <label for="minPriceRange">Min:</label>
-                    <input type="range" class="form-range" id="minPriceRange" min="250" max="1500" step="50" value="250">
-                    <span id="minPriceRangeValue">250</span>
-                </div>
-                <div>
-                    <label for="maxPriceRange">Max:</label>
-                    <input type="range" class="form-range" id="maxPriceRange" min="250" max="1500" step="50" value="1500">
-                    <span id="maxPriceRangeValue">1500</span>
-                </div>
+            <div class="card-distrito"><strong>Distrito:</strong> {{ alojamiento.distrito }}</div>
+            <div class="card-description">{{ alojamiento.descripcion|truncatechars:100 }}</div>
+            <div class="card-characteristics">
+                {% for caracteristica in alojamiento.caracteristicas|slice:":3" %}
+                <span class="characteristic-bubble">{{ caracteristica }}</span>
+                {% endfor %}
+                {% if alojamiento.caracteristicas|length > 3 %}
+                <span class="characteristic-bubble">más...</span>
+                {% endif %}
+            </div>
+            <div class="card-price">
+                Precio: <span class="price-value">S/. {{ alojamiento.precio }}</span>
+            </div>
+            <a href="{% url 'alojamiento_detalle' alojamiento.id %}" class="btn-detalles">Ver más detalles</a>
         </div>
     </div>
+    {% endfor %}
+</div>
 
-     <!-- Contenedor de Cards -->
-     <div class="cards-container" id="cards-container">
-        {% for alojamiento in alojamientos %}
-        <div class="card">
-            {% if alojamiento.imagenes.first %}
-            <img src="{{ alojamiento.imagenes.first.imagen.url }}" alt="Imagen de la Habitación">
-            {% else %}
-            <img src="https://via.placeholder.com/200" alt="Imagen no disponible">
-            {% endif %}
-            
-            <div class="card-content">
-                <div class="card-title">{{ alojamiento.nombre|truncatechars:20 }}</div>
-                <div class="card-description">{{ alojamiento.descripcion|truncatechars:100 }}</div>
-                <div class="card-characteristics">
-                    {% for caracteristica in alojamiento.caracteristicas|slice:":3" %}
-                    <span class="characteristic-bubble">{{ caracteristica }}</span>
-                    {% endfor %}
-                    {% if alojamiento.caracteristicas|length > 3 %}
-                    <span class="characteristic-bubble">más...</span>
-                    {% endif %}
-                </div>
-                <div class="card-price">
-                    Precio: <span class="price-value">S/. {{ alojamiento.precio }}</span>
-                </div>
-                <a href="{% url 'alojamiento_detalle' alojamiento.id %}" class="btn-detalles">Ver más detalles</a>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    
-    <!-- Contenedor para el mensaje cuando no hay resultados -->
-    <div id="no-results-message" style="display: none; text-align: center; font-size: 18px; margin: 20px;">
-        Aún no hay alojamientos con esas características.
-    </div>
+<!-- Contenedor para el mensaje cuando no hay resultados -->
+<div id="no-results-message" style="display: none; text-align: center; font-size: 18px; margin: 20px;">
+    Aún no hay alojamientos con esas características.
+</div>
 
-    <!-- Sección del mapa -->
-    <div id="map-section">
-        <div id="mapa"></div>
-    </div>
+<!-- Sección del mapa -->
+<div id="map-section">
+    <div id="mapa"></div>
+</div>
 
 
-    <!-- API de Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik&callback=initMap" async defer></script>
-    
-    <script>
+<!-- API de Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik&callback=initMap" async defer></script>
 
-        function checkNoResults() {
-            const cards = document.querySelectorAll('.card');
-            let cardsVisible = 0;
+<script>
 
-            cards.forEach(card => {
-                if (card.style.display !== 'none') {
-                    cardsVisible++;  // Contar tarjetas visibles
-                }
-            });
+// Función para verificar si hay resultados
+function checkNoResults() {
+    const cards = document.querySelectorAll('.card');
+    let cardsVisible = 0;
 
-            const noResultsMessage = document.getElementById('no-results-message');
-            if (cardsVisible === 0) {
-                noResultsMessage.style.display = 'block';
-            } else {
-                noResultsMessage.style.display = 'none';
-            }
+    cards.forEach(card => {
+        if (card.style.display !== 'none') {
+            cardsVisible++;  // Contar tarjetas visibles
         }
-        // Filtro de características
-        const filtersButton = document.getElementById('filters-button');
-        const filtersMenu = document.getElementById('filters-menu');
-        let filtersVisible = false;
-    
-        // Mostrar/Ocultar menú de filtros justo debajo del botón de "Filtros"
-        filtersButton.addEventListener('click', () => {
-            if (filtersVisible) {
-                filtersMenu.classList.remove('active');
-            } else {
-                const buttonRect = filtersButton.getBoundingClientRect();
-                filtersMenu.style.left = `${buttonRect.left}px`;
-                filtersMenu.style.top = `${buttonRect.bottom + window.scrollY}px`;
-                filtersMenu.classList.add('active');
+    });
+
+    const noResultsMessage = document.getElementById('no-results-message');
+    if (cardsVisible === 0) {
+        noResultsMessage.style.display = 'block';
+    } else {
+        noResultsMessage.style.display = 'none';
+    }
+}
+
+// Filtro de características
+const filtersButton = document.getElementById('filters-button');
+const filtersMenu = document.getElementById('filters-menu');
+let filtersVisible = false;
+
+// Mostrar/Ocultar menú de filtros justo debajo del botón de "Filtros"
+filtersButton.addEventListener('click', () => {
+    if (filtersVisible) {
+        filtersMenu.classList.remove('active');
+    } else {
+        const buttonRect = filtersButton.getBoundingClientRect();
+        filtersMenu.style.left = `${buttonRect.left}px`;
+        filtersMenu.style.top = `${buttonRect.bottom + window.scrollY}px`;
+        filtersMenu.classList.add('active');
+    }
+    filtersVisible = !filtersVisible;
+});
+
+// Cerrar el menú de filtros al hacer clic fuera de él
+document.addEventListener('click', (event) => {
+    if (!filtersMenu.contains(event.target) && !filtersButton.contains(event.target)) {
+        filtersMenu.classList.remove('active');
+        filtersVisible = false;
+    }
+});
+
+// Botón de menú lateral
+const menuButton = document.getElementById('menuButton');
+const sidebar = document.getElementById('sidebar');
+let sidebarVisible = false;
+
+menuButton.addEventListener('click', () => {
+    if (sidebarVisible) {
+        sidebar.style.right = '-220px';
+        menuButton.innerHTML = '<i class="fas fa-bars"></i>';
+    } else {
+        sidebar.style.right = '10px';
+        menuButton.innerHTML = '<i class="fas fa-times"></i>';
+    }
+    sidebarVisible = !sidebarVisible;
+});
+
+// Selección única de cards (evitar duplicaciones)
+const cards = document.querySelectorAll('.card');
+
+// Filtro de características
+const checkboxes = document.querySelectorAll('.filtro');
+checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener('change', filtrarAlojamientos);
+});
+
+function filtrarAlojamientos() {
+    const filtrosSeleccionados = Array.from(checkboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.name.toLowerCase());
+
+    cards.forEach((card) => {
+        const textoCard = card.textContent.toLowerCase();
+        let mostrarCard = true;
+
+        filtrosSeleccionados.forEach((filtro) => {
+            if (!textoCard.includes(filtro)) {
+                mostrarCard = false;
             }
-            filtersVisible = !filtersVisible;
         });
-    
-        // Cerrar el menú de filtros al hacer clic fuera de él
-        document.addEventListener('click', (event) => {
-            if (!filtersMenu.contains(event.target) && !filtersButton.contains(event.target)) {
-                filtersMenu.classList.remove('active');
-                filtersVisible = false;
-            }
-        });
-    
-        // Botón de menú lateral
-        const menuButton = document.getElementById('menuButton');
-        const sidebar = document.getElementById('sidebar');
-        let sidebarVisible = false;
-    
-        menuButton.addEventListener('click', () => {
-            if (sidebarVisible) {
-                sidebar.style.right = '-220px';
-                menuButton.innerHTML = '<i class="fas fa-bars"></i>';
-            } else {
-                sidebar.style.right = '10px';
-                menuButton.innerHTML = '<i class="fas fa-times"></i>';
-            }
-            sidebarVisible = !sidebarVisible;
-        });
-    
-        // Selección única de cards (evitar duplicaciones)
-        const cards = document.querySelectorAll('.card');
-    
-        // Filtro de características
-        const checkboxes = document.querySelectorAll('.filtro');
-        checkboxes.forEach((checkbox) => {
-            checkbox.addEventListener('change', filtrarAlojamientos);
-        });
-    
-        function filtrarAlojamientos() {
-            const filtrosSeleccionados = Array.from(checkboxes)
-                .filter(checkbox => checkbox.checked)
-                .map(checkbox => checkbox.name.toLowerCase());
 
-            cards.forEach((card) => {
-                const textoCard = card.textContent.toLowerCase();
-                let mostrarCard = true;
-
-                filtrosSeleccionados.forEach((filtro) => {
-                    if (!textoCard.includes(filtro)) {
-                        mostrarCard = false;
-                    }
-                });
-
-                if (mostrarCard || filtrosSeleccionados.length === 0) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            checkNoResults(); // Verificar si hay resultados
+        if (mostrarCard || filtrosSeleccionados.length === 0) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
         }
-    
-        // Funcionalidad de búsqueda
-        const searchBar = document.querySelector('.search-bar input');
-    
-        searchBar.addEventListener('input', function () {
-            const searchText = searchBar.value.toLowerCase();
-    
-            cards.forEach(card => {
-                const title = card.querySelector('.card-title').textContent.toLowerCase();
-                const description = card.querySelector('.card-description').textContent.toLowerCase();
-    
-                if (title.includes(searchText) || description.includes(searchText)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        
-            checkNoResults();
-        });
-    
-        // Funcionalidad de filtro de precios
-        const minPriceRange = document.getElementById('minPriceRange');
-        const maxPriceRange = document.getElementById('maxPriceRange');
-        const minPriceDisplay = document.getElementById('minPriceRangeValue');
-        const maxPriceDisplay = document.getElementById('maxPriceRangeValue');
-    
-        minPriceRange.addEventListener('input', function () {
-            minPriceDisplay.textContent = minPriceRange.value;
-            filterByPrice();
-        });
-    
-        maxPriceRange.addEventListener('input', function () {
-            maxPriceDisplay.textContent = maxPriceRange.value;
-            filterByPrice();
-        });
-    
-        function filterByPrice() {
-            const minPrice = parseFloat(minPriceRange.value);
-            const maxPrice = parseFloat(maxPriceRange.value);
-    
-            cards.forEach(card => {
-                const price = parseFloat(card.querySelector('.price-value').textContent.replace('S/.', '').trim());
-    
-                if (price >= minPrice && price <= maxPrice) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+    });
 
-            checkNoResults();
+    checkNoResults(); // Verificar si hay resultados
+}
+
+// Funcionalidad de búsqueda
+const searchBar = document.querySelector('.search-bar input');
+
+searchBar.addEventListener('input', function () {
+    const searchText = searchBar.value.toLowerCase();
+
+    cards.forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const description = card.querySelector('.card-description').textContent.toLowerCase();
+        const distrito = card.querySelector('.card-distrito').textContent.toLowerCase(); // Obtener el distrito
+
+        if (title.includes(searchText) || description.includes(searchText) || distrito.includes(searchText)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
         }
+    });
 
-        // Inicialización del mapa
-        function initMap() {
-        const map = new google.maps.Map(document.getElementById('mapa'), {
-            zoom: 16,
-            center: { lat: -12.043954, lng: -76.951260 }  // Coordenadas centrales (ajusta según la ubicación general)
-        });
+    checkNoResults();
+});
 
-        // Obtener las coordenadas pasadas desde el backend
-        const coordenadas = JSON.parse('{{ coordenadas_json|escapejs }}');
+// Funcionalidad de filtro de precios
+const minPriceRange = document.getElementById('minPriceRange');
+const maxPriceRange = document.getElementById('maxPriceRange');
+const minPriceDisplay = document.getElementById('minPriceRangeValue');
+const maxPriceDisplay = document.getElementById('maxPriceRangeValue');
 
-        // Iterar sobre las coordenadas y agregar marcadores
-        coordenadas.forEach(function (coord) {
-            const marker = new google.maps.Marker({
-                position: { lat: coord.latitud, lng: coord.longitud },
-                map: map,
-                title: coord.nombre
-            });
+minPriceRange.addEventListener('input', function () {
+    minPriceDisplay.textContent = minPriceRange.value;
+    filterByPrice();
+});
 
-            // Añadir un evento 'click' al marcador para redirigir a la página de detalles del alojamiento
-            marker.addListener('click', function () {
-                window.location.href = '/alojamiento/' + coord.id;
-                });
-            });
+maxPriceRange.addEventListener('input', function () {
+    maxPriceDisplay.textContent = maxPriceRange.value;
+    filterByPrice();
+});
+
+function filterByPrice() {
+    const minPrice = parseFloat(minPriceRange.value);
+    const maxPrice = parseFloat(maxPriceRange.value);
+
+    cards.forEach(card => {
+        const priceText = card.querySelector('.price-value').textContent;
+        const price = parseFloat(priceText.replace('S/.', '').trim());
+
+        if (price >= minPrice && price <= maxPrice) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
         }
+    });
 
-        // Vinculamos la función de verificación en cada cambio
-        minPriceRange.addEventListener('input', function () {
-            minPriceDisplay.textContent = minPriceRange.value;
-            filterByPrice();
+    checkNoResults();
+}
+
+// Inicialización del mapa
+function initMap() {
+    const map = new google.maps.Map(document.getElementById('mapa'), {
+        zoom: 16,
+        center: { lat: -12.043954, lng: -76.951260 }  // Coordenadas centrales (ajusta según la ubicación general)
+    });
+
+    // Obtener las coordenadas pasadas desde el backend
+    const coordenadas = JSON.parse('{{ coordenadas_json|escapejs }}');
+
+    // Iterar sobre las coordenadas y agregar marcadores
+    coordenadas.forEach(function (coord) {
+        const marker = new google.maps.Marker({
+            position: { lat: coord.latitud, lng: coord.longitud },
+            map: map,
+            title: coord.distrito  // Cambiado de coord.nombre a coord.distrito
         });
 
-        maxPriceRange.addEventListener('input', function () {
-            maxPriceDisplay.textContent = maxPriceRange.value;
-            filterByPrice();
+        // Añadir un evento 'click' al marcador para redirigir a la página de detalles del alojamiento
+        marker.addListener('click', function () {
+            window.location.href = '{% url "alojamiento_detalle" 0 %}'.replace('/0/', `/${coord.id}/`);
         });
+    });
+}
 
-        // Filtrar alojamientos también actualiza el chequeo de resultados
-        checkboxes.forEach((checkbox) => {
-            checkbox.addEventListener('change', filtrarAlojamientos);
-        });
-        
-        document.addEventListener('DOMContentLoaded', function () {
-            const mapLink = document.getElementById("map-link");
-            const inicioBtn = document.getElementById("inicio-btn");
-            const cardsContainer = document.getElementById("cards-container");
-            const mapSection = document.getElementById("map-section");
+// Vinculamos la función de verificación en cada cambio
+minPriceRange.addEventListener('input', function () {
+    minPriceDisplay.textContent = minPriceRange.value;
+    filterByPrice();
+});
 
-            mapLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                cardsContainer.style.display = "none";
-                mapSection.style.display = "block";
-                mapLink.classList.add("selected");
-                inicioBtn.classList.remove("selected");
-                initMap();
-            });
+maxPriceRange.addEventListener('input', function () {
+    maxPriceDisplay.textContent = maxPriceRange.value;
+    filterByPrice();
+});
 
-            inicioBtn.addEventListener('click', function () {
-                cardsContainer.style.display = "flex";
-                mapSection.style.display = "none";
-                inicioBtn.classList.add("selected");
-                mapLink.classList.remove("selected");
-            });
-        });
+// Filtrar alojamientos también actualiza el chequeo de resultados
+checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener('change', filtrarAlojamientos);
+});
+    
+document.addEventListener('DOMContentLoaded', function () {
+    const mapLink = document.getElementById("map-link");
+    const inicioBtn = document.getElementById("inicio-btn");
+    const cardsContainer = document.getElementById("cards-container");
+    const mapSection = document.getElementById("map-section");
 
-    </script>
+    mapLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        cardsContainer.style.display = "none";
+        mapSection.style.display = "block";
+        mapLink.classList.add("selected");
+        inicioBtn.classList.remove("selected");
+        initMap();
+    });
+
+    inicioBtn.addEventListener('click', function () {
+        cardsContainer.style.display = "flex";
+        mapSection.style.display = "none";
+        inicioBtn.classList.add("selected");
+        mapLink.classList.remove("selected");
+    });
+});
+
+</script>
 </body>
 </html>

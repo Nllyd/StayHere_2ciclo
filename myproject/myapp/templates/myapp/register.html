@@ -170,17 +170,26 @@
     
     <div class="sidebar" id="sidebar">
         {% if user.is_authenticated %}
-            <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
-            <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
-            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
-            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+            {% if user.tipo_usuario == 'Arrendador' %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% elif user.tipo_usuario == 'Estudiante' %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% else %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% endif %}
         {% else %}
             <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesion</a>
-            <a href="{% url 'alert' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
-            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+            <a href="{% url 'login' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+            <a href="{% url 'login' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
         {% endif %}
-        <hr style="color: rgb(255, 255, 255); width: 150px; border: 2px solid; border-radius: 10px; margin-left: 15px; margin-top: 170px;">
-        <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
     </div>
 
     <!-- Formulario de registro -->

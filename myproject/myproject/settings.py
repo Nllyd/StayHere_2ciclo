@@ -7,12 +7,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Configuraciones importantes
 SECRET_KEY = 'django-insecure-o(ghtg5w*^_yxs_9ij9@7#ie7c(b%extdi!s=&^+iu(6*cwzp-'
 DEBUG = True
-ALLOWED_HOSTS = ['192.168.18.12', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['192.168.18.12', '127.0.0.1', 'localhost','stayhere-web.onrender.com']
 
 INSTALLED_APPS = [
     'myapp',
     'rest_framework',
     'corsheaders',
+    'captcha', #Inclusion de captcha
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -98,10 +99,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = '/myproject/myapp/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+# CAMBIO EN LOS STATICS PARA PROBAR
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'myapp' / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

@@ -40,23 +40,20 @@ def alert_view(request):
     return render(request, 'myapp/alert.html')
 
 def home_view(request):
-    # Obtener todos los alojamientos
     alojamientos = Alojamiento.objects.all()
     
-    # Crear una lista de diccionarios con la información necesaria
     coordenadas = [
         {
             'latitud': alojamiento.latitud,
             'longitud': alojamiento.longitud,
-            'nombre': alojamiento.nombre,
-            'id': alojamiento.id
+            'id': alojamiento.id,
+            'distrito': alojamiento.distrito
         } for alojamiento in alojamientos
     ]
     
-    # Pasar la lista de coordenadas al contexto y asegurarse de que se renderice como JSON en el template
     context = {
         'alojamientos': alojamientos,
-        'coordenadas_json': json.dumps(coordenadas)  # Convierte las coordenadas a JSON para pasarlas al frontend
+        'coordenadas_json': json.dumps(coordenadas)
     }
     
     return render(request, 'myapp/home.html', context)
@@ -107,29 +104,36 @@ def login_view(request):
 @login_required
 def nuevo_view(request):
     if request.method == 'POST':
-        nombre = request.POST['nombre']
-        descripcion = request.POST['descripcion']
-        precio = request.POST['precio']
-        latitud = request.POST['latitud']
-        longitud = request.POST['longitud']
+        descripcion = request.POST.get('descripcion')
+        precio = request.POST.get('precio')
+        distrito = request.POST.get('distrito')
+        latitud = request.POST.get('latitud')
+        longitud = request.POST.get('longitud')
         caracteristicas = request.POST.getlist('caracteristicas')
         imagenes = request.FILES.getlist('imagenes')
+
+        if not descripcion or not precio or not distrito:
+            messages.error(request, 'Por favor, completa todos los campos requeridos.')
+            return render(request, 'myapp/nuevo.html')
 
         if not latitud or not longitud:
             messages.error(request, 'Por favor, selecciona una ubicación en el mapa.')
             return render(request, 'myapp/nuevo.html')
 
-        alojamiento = Alojamiento(
-            nombre=nombre,
-            descripcion=descripcion,
-            precio=precio,
-            latitud=float(latitud),
-            longitud=float(longitud),
-            caracteristicas=caracteristicas,
-            usuario=request.user
-        )
-        alojamiento.save()
-        
+        try:
+            alojamiento = Alojamiento.objects.create(
+                descripcion=descripcion,
+                precio=precio,
+                distrito=distrito,
+                latitud=float(latitud),
+                longitud=float(longitud),
+                caracteristicas=caracteristicas,
+                usuario=request.user
+            )
+        except ValueError:
+            messages.error(request, 'Latitud y longitud deben ser números válidos.')
+            return render(request, 'myapp/nuevo.html')
+
         for imagen in imagenes:
             ImagenAlojamiento.objects.create(alojamiento=alojamiento, imagen=imagen)
 
