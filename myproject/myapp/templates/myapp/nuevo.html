@@ -202,17 +202,26 @@
     
     <div class="sidebar" id="sidebar">
         {% if user.is_authenticated %}
-            <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
-            <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
-            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
-            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+            {% if user.tipo_usuario == 'Arrendador' %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% elif user.tipo_usuario == 'Estudiante' %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% else %}
+                <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
+                <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
+                <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
+            {% endif %}
         {% else %}
             <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesion</a>
-            <a href="{% url 'alert' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
-            <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+            <a href="{% url 'login' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
+            <a href="{% url 'login' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
         {% endif %}
-        <hr style="color: rgb(255, 255, 255); width: 150px; border: 2px solid; border-radius: 10px; margin-left: 15px; margin-top: 170px;">
-        <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
     </div>
 
     <!-- Contenedor del formulario -->
@@ -223,14 +232,6 @@
                 <p>Información del Alojamiento</p>
             </div>
             <div class="alojamiento-section">
-                <div id="container" class="row">
-                    <div class="col">
-                        <p>Nombra tu alojamiento</p>
-                        <div class="input-group mb-3">
-                            <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ingresa un nombre" aria-label="Enter name" style="height: 50px;" required>
-                        </div>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-12">
                         <!-- MAPA -->
@@ -255,6 +256,22 @@
                         <p style="margin-top: 30px;">Establece tu precio</p>
                         <div class="precio-box">
                             <input type="number" id="precio" name="precio" class="form-control" placeholder="S/." required>
+                        </div>
+
+                        <p style="margin-top: 30px;">Distrito</p>
+                        <div class="precio-box">
+                            <select id="distrito" name="distrito" class="form-control" required>
+                                <option value="" disabled selected>Seleccione un distrito</option>
+                                <option value="Ancón">Ancón</option>
+                                <option value="Carabayllo">Carabayllo</option>
+                                <option value="Comas">Comas</option>
+                                <option value="Independencia">Independencia</option>
+                                <option value="Los Olivos">Los Olivos</option>
+                                <option value="Puente Piedra">Puente Piedra</option>
+                                <option value="San Martín de Porres">San Martín de Porres</option>
+                                <option value="Santa Rosa">Santa Rosa</option>
+                                <option value="Santa Anita">Santa Anita</option>
+                            </select>
                         </div>
 
                         <p style="margin-top: 30px;">Selecciona las características del alojamiento</p>
