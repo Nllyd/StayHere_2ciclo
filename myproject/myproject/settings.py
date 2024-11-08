@@ -2,7 +2,14 @@
 from pathlib import Path
 import os
 
+# Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'myapp' / 'static',  # Ruta a 'myapp/static'
+]
 
 # Configuraciones importantes
 SECRET_KEY = 'django-insecure-o(ghtg5w*^_yxs_9ij9@7#ie7c(b%extdi!s=&^+iu(6*cwzp-'
@@ -98,11 +105,6 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-
-# CAMBIO EN LOS STATICS PARA PROBAR
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'myapp' / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
