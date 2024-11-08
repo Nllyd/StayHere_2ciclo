@@ -331,8 +331,8 @@ def generate_captcha(request):
     image = Image.new('RGB', (width, height), color=(255, 255, 255))
 
     # Cargar la fuente con la ruta absoluta para diagnóstico
-    font = ImageFont.truetype('/opt/render/project/src/myapp/static/ASMAN.ttf', 36)
-
+    font = ImageFont.truetype('/opt/render/project/src/myproject/ASMAN.ttf', 36)
+    
     # Dibujar el texto en la imagen
     draw = ImageDraw.Draw(image)
     draw.text((10, 5), captcha_text, font=font, fill=(0, 0, 0))
