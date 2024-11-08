@@ -1,20 +1,20 @@
 # Otros import y configuraciones
 from pathlib import Path
 import os
-from PIL import ImageFont
 
 # Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Fuentes
-font_path = os.path.join(settings.BASE_DIR, 'static', 'ASMAN.ttf')
-font = ImageFont.truetype(font_path, 36)
-
+# Configuración de archivos estáticos
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'myapp' / 'static',
 ]
+
+# Ruta de la fuente personalizada
+FONT_PATH = os.path.join(BASE_DIR, 'myapp', 'static', 'ASMAN.ttf')
+
 # Configuraciones importantes
 SECRET_KEY = 'django-insecure-o(ghtg5w*^_yxs_9ij9@7#ie7c(b%extdi!s=&^+iu(6*cwzp-'
 DEBUG = True
