@@ -5,10 +5,9 @@ import os
 # Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/myproject/myapp/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'myapp' / 'static',  # Ruta a 'myapp/static'
+    BASE_DIR / "static",
 ]
 
 # Configuraciones importantes
