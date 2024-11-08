@@ -1,9 +1,14 @@
 # Otros import y configuraciones
 from pathlib import Path
 import os
+from PIL import ImageFont
 
 # Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Fuentes
+font_path = os.path.join(settings.BASE_DIR, 'static', 'ASMAN.ttf')
+font = ImageFont.truetype(font_path, 36)
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
