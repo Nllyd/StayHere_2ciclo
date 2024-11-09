@@ -28,6 +28,7 @@ from io import BytesIO
 from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
 from django.core.cache import cache
+from django.conf import settings
 
 def logout_view(request):
     logout(request)
@@ -322,16 +323,21 @@ def generate_verification_code(length=8):
 def generate_captcha(request):
     captcha_text = ''.join(random.choices(string.ascii_uppercase, k=4))
 
+    # Guarda el texto del captcha en el caché con una caducidad de 300 segundos
     cache.set(request.session.session_key, captcha_text, 300)
 
+    # Configuración de la imagen del captcha
     width, height = 150, 50
     image = Image.new('RGB', (width, height), color=(255, 255, 255))
-    font = ImageFont.truetype("arial.ttf", 36)
 
+    # Cargar la fuente con la ruta absoluta para diagnóstico
+    font = ImageFont.truetype("DejaVuSans.ttf", 36)
+    
+    # Dibujar el texto en la imagen
     draw = ImageDraw.Draw(image)
-
     draw.text((10, 5), captcha_text, font=font, fill=(0, 0, 0))
 
+    # Añadir líneas aleatorias para hacer el captcha más complejo
     for _ in range(5):
         x1 = random.randint(0, width)
         y1 = random.randint(0, height)
@@ -339,12 +345,14 @@ def generate_captcha(request):
         y2 = random.randint(0, height)
         draw.line(((x1, y1), (x2, y2)), fill=(0, 0, 0), width=2)
 
+    # Guardar la imagen en un buffer en formato PNG
     buffer = BytesIO()
     image.save(buffer, format='PNG')
     buffer.seek(0)
 
+    # Retornar la imagen como respuesta HTTP
     return HttpResponse(buffer, content_type='image/png')
-
+    
 @csrf_exempt
 def validar_rechazar_usuario(request):
     if request.method == 'POST':
