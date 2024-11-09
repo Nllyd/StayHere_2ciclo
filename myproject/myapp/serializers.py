@@ -14,7 +14,7 @@ class AlojamientoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Alojamiento
-        fields = ['id', 'usuario', 'nombre', 'descripcion', 'precio', 'latitud', 'longitud', 'caracteristicas', 'primera_imagen']
+        fields = ['id', 'usuario', 'descripcion', 'precio', 'latitud', 'longitud', 'caracteristicas', 'primera_imagen']
 
     def get_primera_imagen(self, obj):
         primera_imagen = obj.imagenes.first()
