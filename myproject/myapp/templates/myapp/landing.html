@@ -260,6 +260,128 @@
             filter: grayscale(0%);
         }
 
+        /* Estilos para pantallas pequeñas (smartphones) */
+@media (max-width: 768px) {
+    .spacer h1 {
+        font-size: 48px;
+    }
+
+    .spacer img {
+        display: none; /* Ocultar las imágenes en pantallas pequeñas */
+    }
+
+    .content-text h2 {
+        font-size: 24px;
+    }
+
+    .content-text p {
+        font-size: 16px;
+    }
+
+    .search-button {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+
+    .register-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .register-section img {
+        width: 150px;
+        margin-bottom: 20px;
+    }
+
+    .register-section div {
+        max-width: 100%;
+    }
+
+    .benefit {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .slider-section .slider {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+    }
+
+    .slider img {
+        flex: 0 0 auto;
+        scroll-snap-align: center;
+        width: 80px;
+        height: auto;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .testimonials-section .testimonial {
+        width: 90%;
+        margin: 20px auto;
+    }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .spacer h1 {
+        font-size: 72px;
+    }
+
+    .register-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .register-section img {
+        width: 180px;
+        margin-bottom: 20px;
+    }
+
+    .benefit {
+        width: 45%;
+        margin: 10px;
+    }
+
+    .slider img {
+        width: 100px;
+        height: auto;
+    }
+}
+
+/* Ajustes generales para que el diseño se vea bien en diferentes dispositivos */
+.slider-section {
+    overflow: hidden;
+}
+
+.slider {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Ocultar la barra de desplazamiento en Firefox */
+}
+
+.slider::-webkit-scrollbar {
+    display: none; /* Ocultar la barra de desplazamiento en Chrome, Safari y Edge */
+}
+
+.slider img {
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+    transition: transform 0.3s;
+    width: 120px;
+    height: auto;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.slider img:hover {
+    transform: scale(1.1);
+}
+
     </style>
 </head>
 <body>
