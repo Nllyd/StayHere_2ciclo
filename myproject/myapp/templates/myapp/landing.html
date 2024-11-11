@@ -260,19 +260,23 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            overflow-x: hidden;
+            overflow: hidden;
             scroll-snap-type: x mandatory;
             width: 100%;
-            padding: 0 100px; /* Margen de 100 píxeles a la izquierda y a la derecha */
-            box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+            padding: 0 100px;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
         }
         
         .slider img {
             height: 20px;
+            width: 100%;
             filter: grayscale(100%);
             transition: all 0.3s ease;
             margin-left: 25px;
             margin-right: 25px;
+            transition: transform 0.3s;
+            scroll-snap-align: center;
         }
 
         .slider img:hover {
@@ -519,25 +523,44 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            function adjustSliderImages() {
-                const slider = document.querySelector('.slider');
-                const images = slider.querySelectorAll('img');
-                let visibleImages = images.length;
+            const slider = document.querySelector('.slider');
+            const images = Array.from(slider.querySelectorAll('img'));
+            let visibleImages = 4; // Número de imágenes visibles por defecto
+            let currentIndex = 0;
+            let autoScrollInterval;
+    
+            function adjustVisibleImages() {
+                clearInterval(autoScrollInterval); // Detener el desplazamiento automático
     
                 if (window.innerWidth <= 768) {
-                    visibleImages = 2; // Para celulares, muestra 2 imágenes
+                    visibleImages = 2; // Para celulares, mostrar 2 imágenes a la vez
+                    startAutoScroll(); // Iniciar el desplazamiento automático
                 } else if (window.innerWidth <= 1024) {
-                    visibleImages = 4; // Para tabletas, muestra 4 imágenes
+                    visibleImages = 4; // Para tabletas, mostrar 4 imágenes a la vez
+                    startAutoScroll(); // Iniciar el desplazamiento automático
+                } else {
+                    visibleImages = images.length; // Para pantallas grandes, mostrar todas las imágenes
                 }
     
+                updateSlider();
+            }
+    
+            function updateSlider() {
                 images.forEach((img, index) => {
-                    img.style.display = index < visibleImages ? 'block' : 'none';
+                    img.style.display = (index >= currentIndex && index < currentIndex + visibleImages) ? 'block' : 'none';
                 });
             }
     
-            // Ajustar las imágenes al cargar la página y al redimensionar la ventana
-            adjustSliderImages();
-            window.addEventListener('resize', adjustSliderImages);
+            function startAutoScroll() {
+                autoScrollInterval = setInterval(() => {
+                    currentIndex = (currentIndex + visibleImages) % images.length;
+                    updateSlider();
+                }, 2000);
+            }
+    
+            // Ejecutar las funciones al cargar la página y al redimensionar la ventana
+            adjustVisibleImages();
+            window.addEventListener('resize', adjustVisibleImages);
         });
     </script>
 
