@@ -173,29 +173,44 @@
             background-color: #f9f9f9;
         }
 
+        .benefits-section h2 {
+            margin-bottom: 20px; /* Espacio debajo del título */
+        }
+
+        .benefits-section .benefits-container {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            flex-wrap: wrap; /* Permite que los cards se ajusten en múltiples filas si es necesario */
+            gap: 20px; /* Espacio entre los cards */
+        }
+
         .benefit {
             display: flex;
+            flex-direction: column;
             align-items: center;
+            justify-content: center; /* Centra el contenido verticalmente */
             background-color: white;
-            padding: 20px;
+            padding: 30px; /* Aumenta el padding */
             border-radius: 15px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin: 20px;
+            width: 250px;
+            margin: 10px;
+            text-align: center;
         }
-        
+
         .benefit i {
-            font-size: 40px;
+            font-size: 35px; /* Tamaño más pequeño para el ícono */
             color: #212F38;
-            margin-right: 20px; /* Espacio entre el icono y el texto */
+            margin-bottom: 15px; /* Espacio entre el ícono y el título */
         }
-        
+
         .benefit h3 {
-            margin: 0;
+            margin: 10px 0; /* Espacio adicional arriba y abajo del título */
             font-size: 18px;
         }
-        
+
         .benefit p {
-            margin: 0;
             font-size: 14px;
             color: #747474;
         }
@@ -243,12 +258,16 @@
 
         .slider {
             display: flex;
-            justify-content:center;
-            gap: 30px;
+            justify-content: space-between;
+            align-items: center;
+            overflow-x: hidden;
+            scroll-snap-type: x mandatory;
+            width: 100%;
+            padding: 0 100px; /* Margen de 100 píxeles a la izquierda y a la derecha */
+            box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
         }
-
+        
         .slider img {
-            width: auto;
             height: 20px;
             filter: grayscale(100%);
             transition: all 0.3s ease;
@@ -266,8 +285,9 @@
         font-size: 48px;
     }
 
-    .spacer img {
-        display: none; /* Ocultar las imágenes en pantallas pequeñas */
+    .slider img {
+        flex: 0 0 calc(50% - 10px); /* Muestra 2 imágenes a la vez */
+        max-width: calc(50% - 10px);
     }
 
     .content-text h2 {
@@ -351,9 +371,12 @@
         margin: 10px;
     }
 
+    .slider {
+        flex-wrap: nowrap;
+    }
     .slider img {
-        width: auto;
-        height: 20px;
+        flex: 0 0 calc(25% - 10px); /* Muestra 4 imágenes a la vez */
+        max-width: calc(25% - 10px);
     }
 }
 
@@ -377,8 +400,8 @@
     flex: 0 0 auto;
     scroll-snap-align: center;
     transition: transform 0.3s;
-    width: 120px;
-    height: auto;
+    width: auto;
+    height: 40px;
     margin-left: 15px;
     margin-right: 15px;
 }
@@ -444,15 +467,27 @@
 
     <div class="benefits-section">
         <h2>¿Por qué elegirnos?</h2>
-        <div class="benefit">
-            <i class="fas fa-search-location"></i>
-            <h3>Búsqueda Eficiente</h3>
-            <p>Busca habitaciones cerca de tu institucion utilizando un mapa interactivo</p>
-        </div>
-        <div class="benefit">
-            <i class="fas fa-home"></i>
-            <h3>Variedad de Alojamientos</h3>
-            <p>Escoge entre una variedad de habitaciones que se acomoden a ti</p>
+        <div class="benefits-container">
+            <div class="benefit">
+                <i class="fas fa-search-location"></i>
+                <h3>Búsqueda Eficiente</h3>
+                <p>Busca habitaciones cerca de tu institución utilizando un mapa interactivo</p>
+            </div>
+            <div class="benefit">
+                <i class="fas fa-home"></i>
+                <h3>Variedad de Alojamientos</h3>
+                <p>Escoge entre una variedad de habitaciones que se acomoden a ti</p>
+            </div>
+            <div class="benefit">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Seguridad Garantizada</h3>
+                <p>Disfruta de un ambiente seguro con validaciones de datos para tu tranquilidad</p>
+            </div>
+            <div class="benefit">
+                <i class="fas fa-laptop"></i>
+                <h3>Facilidad de Uso</h3>
+                <p>Nuestro aplicativo es fácil de navegar, con una interfaz intuitiva que facilita la búsqueda y la conexión con arrendadores.</p>
+            </div>
         </div>
     </div>
 
@@ -481,5 +516,30 @@
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Utplogonuevo.svg/1200px-Utplogonuevo.svg.png" alt="UTP">
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function adjustSliderImages() {
+                const slider = document.querySelector('.slider');
+                const images = slider.querySelectorAll('img');
+                let visibleImages = images.length;
+    
+                if (window.innerWidth <= 768) {
+                    visibleImages = 2; // Para celulares, muestra 2 imágenes
+                } else if (window.innerWidth <= 1024) {
+                    visibleImages = 4; // Para tabletas, muestra 4 imágenes
+                }
+    
+                images.forEach((img, index) => {
+                    img.style.display = index < visibleImages ? 'block' : 'none';
+                });
+            }
+    
+            // Ajustar las imágenes al cargar la página y al redimensionar la ventana
+            adjustSliderImages();
+            window.addEventListener('resize', adjustSliderImages);
+        });
+    </script>
+
 </body>
 </html>
