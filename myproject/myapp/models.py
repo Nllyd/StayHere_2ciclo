@@ -59,11 +59,14 @@ class Usuario(AbstractUser):
     verification_code = models.CharField(max_length=8, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
 
-    #DATOS DE CONTACTO
+    # Datos de contacto
     mostrar_whatsapp = models.BooleanField(default=False)
     tiktok_url = models.URLField(blank=True, null=True)
+    mostrar_tiktok = models.BooleanField(default=False)  # Nuevo campo
     instagram_url = models.URLField(blank=True, null=True)
+    mostrar_instagram = models.BooleanField(default=False)  # Nuevo campo
     facebook_url = models.URLField(blank=True, null=True)
+    mostrar_facebook = models.BooleanField(default=False)  # Nuevo campo
 
     objects = MyUserManager()
 
@@ -81,19 +84,16 @@ class Usuario(AbstractUser):
         return None
 
     def save(self, *args, **kwargs):
-    # Si el usuario es superusuario, aseguramos que el tipo de usuario sea "Administrador"
+        # Si el usuario es superusuario, aseguramos que el tipo de usuario sea "Administrador"
         if self.is_superuser:
             self.tipo_usuario = 'Administrador'
         else:
-            # Si el usuario no es superusuario y el tipo actual es "Administrador", restauramos su tipo original
             if self._state.adding is False and Usuario.objects.filter(pk=self.pk).exists():
                 original_tipo = Usuario.objects.get(pk=self.pk).tipo_usuario
-                # Cambiar a "Estudiante" solo si el tipo original era "Administrador"
                 if self.tipo_usuario == 'Administrador':
                     self.tipo_usuario = original_tipo if original_tipo != 'Administrador' else 'Estudiante'
 
         super().save(*args, **kwargs)
-
 
 class Alojamiento(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

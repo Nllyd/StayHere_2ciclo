@@ -226,25 +226,34 @@ def register_view(request):
 def user_view(request):
     usuario = request.user
     alojamientos = Alojamiento.objects.filter(usuario=usuario)
-    
+
     if request.method == 'POST':
         # Validación de datos
-        nombre = request.POST.get('nombre')
         telefono = request.POST.get('telefono')
         fecha_nacimiento = request.POST.get('fecha_nacimiento')
 
-        if not nombre or not telefono or not fecha_nacimiento:
+        if not telefono or not fecha_nacimiento:
             messages.error(request, 'Todos los campos son obligatorios.')
             return render(request, 'myapp/user.html', {'usuario': usuario, 'alojamientos': alojamientos})
 
-        usuario.nombre = nombre
         usuario.telefono = telefono
         usuario.fecha_nacimiento = fecha_nacimiento
+
+        # Actualizar valores de los checkboxes
         usuario.mostrar_whatsapp = 'mostrar_whatsapp' in request.POST
-        
+        usuario.mostrar_tiktok = 'mostrar_tiktok' in request.POST
+        usuario.mostrar_instagram = 'mostrar_instagram' in request.POST
+        usuario.mostrar_facebook = 'mostrar_facebook' in request.POST
+
+        # Actualizar URL de redes sociales
+        usuario.tiktok_url = request.POST.get('tiktok_url', '')
+        usuario.instagram_url = request.POST.get('instagram_url', '')
+        usuario.facebook_url = request.POST.get('facebook_url', '')
+
+        # Actualizar la foto de perfil si se ha subido una nueva
         if 'foto_perfil' in request.FILES:
             usuario.foto_perfil = request.FILES['foto_perfil']
-        
+
         usuario.save()
         messages.success(request, 'Perfil actualizado exitosamente.')
         return redirect('user')

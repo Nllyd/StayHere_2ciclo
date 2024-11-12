@@ -362,17 +362,17 @@
             <i class="fab fa-whatsapp"></i> WhatsApp
         </a>
         {% endif %}
-        {% if usuario.tiktok_url %}
+        {% if usuario.mostrar_tiktok and usuario.tiktok_url %}
             <a class="action-button" href="{{ usuario.tiktok_url }}" target="_blank" style="background-color: #EE1D52;">
                 <i class="fab fa-tiktok"></i> TikTok
             </a>
         {% endif %}
-        {% if usuario.instagram_url %}
+        {% if usuario.mostrar_instagram and usuario.instagram_url %}
             <a class="action-button" href="{{ usuario.instagram_url }}" target="_blank" style="background-color: #C13584;">
                 <i class="fab fa-instagram"></i> Instagram
             </a>
         {% endif %}
-        {% if usuario.facebook_url %}
+        {% if usuario.mostrar_facebook and usuario.facebook_url %}
             <a class="action-button" href="{{ usuario.facebook_url }}" target="_blank" style="background-color: #3b5998;">
                 <i class="fab fa-facebook-f"></i> Facebook
             </a>
@@ -382,7 +382,8 @@
     <!-- Línea divisoria adicional -->
     <hr class="profile-divider">
 
-    <!-- Sección de alojamientos publicados -->
+    <!-- Sección de alojamientos publicados, solo si no es 'Estudiante' -->
+    {% if usuario.tipo_usuario != 'Estudiante' %}
     <h3 style="margin-left: 18%; margin-bottom: 20px; font-size: 20px; font-weight: bold;">Alojamientos publicados</h3>
 
     <div class="container alojamientos" style="margin-left: 18%; padding-bottom: 30px;">
@@ -428,6 +429,7 @@
             <p>No has publicado ningún alojamiento.</p>
         {% endif %}
     </div>
+    {% endif %}
     
     <!-- Modal para editar perfil -->
     <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
@@ -440,10 +442,6 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre }}" class="form-control rounded-input" required>
-                        </div>
                         <div class="mb-3">
                             <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
                             <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ usuario.fecha_nacimiento|date:'Y-m-d' }}" class="form-control rounded-input" required>
@@ -461,25 +459,38 @@
                             </div>
                         </div>
 
-                        <!-- Campos de redes sociales -->
-                         
+                        <!-- Checkbox para mostrar iconos de redes sociales -->
                         <div class="mb-3">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="mostrar_whatsapp" name="mostrar_whatsapp" {% if usuario.mostrar_whatsapp %}checked{% endif %}>
                                 <label class="form-check-label" for="mostrar_whatsapp">Mostrar botón de WhatsApp</label>
                             </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="mostrar_tiktok" name="mostrar_tiktok" {% if usuario.mostrar_tiktok %}checked{% endif %}>
+                                <label class="form-check-label" for="mostrar_tiktok">Mostrar botón de TikTok</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="mostrar_instagram" name="mostrar_instagram" {% if usuario.mostrar_instagram %}checked{% endif %}>
+                                <label class="form-check-label" for="mostrar_instagram">Mostrar botón de Instagram</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="mostrar_facebook" name="mostrar_facebook" {% if usuario.mostrar_facebook %}checked{% endif %}>
+                                <label class="form-check-label" for="mostrar_facebook">Mostrar botón de Facebook</label>
+                            </div>
                         </div>
+
+                        <!-- Campos de redes sociales no obligatorios -->
                         <div class="mb-3">
                             <label for="tiktok_url" class="form-label">URL de TikTok</label>
-                            <input type="url" id="tiktok_url" name="tiktok_url" value="{{ usuario.tiktok_url }}" class="form-control rounded-input">
+                            <input id="tiktok_url" name="tiktok_url" value="{{ usuario.tiktok_url }}" class="form-control rounded-input">
                         </div>
                         <div class="mb-3">
                             <label for="instagram_url" class="form-label">URL de Instagram</label>
-                            <input type="url" id="instagram_url" name="instagram_url" value="{{ usuario.instagram_url }}" class="form-control rounded-input">
+                            <input id="instagram_url" name="instagram_url" value="{{ usuario.instagram_url }}" class="form-control rounded-input">
                         </div>
                         <div class="mb-3">
                             <label for="facebook_url" class="form-label">URL de Facebook</label>
-                            <input type="url" id="facebook_url" name="facebook_url" value="{{ usuario.facebook_url }}" class="form-control rounded-input">
+                            <input id="facebook_url" name="facebook_url" value="{{ usuario.facebook_url }}" class="form-control rounded-input">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -490,6 +501,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Modal para editar alojamiento -->
     <div class="modal fade" id="editAlojamientoModal" tabindex="-1" aria-labelledby="editAlojamientoModalLabel" aria-hidden="true">

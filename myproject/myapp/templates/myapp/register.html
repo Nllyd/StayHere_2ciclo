@@ -8,6 +8,7 @@
     <title>Stay Here - Registrarse</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
         * {
@@ -240,8 +241,14 @@
 
             <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Introduce tu contraseña" required>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Introduce tu contraseña" required>
+                    <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
+
             <div class="form-group">
                 <label for="nombre">Nombre y Apellidos</label>
                 <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Introduce tu nombre completo" required>
@@ -331,6 +338,21 @@
         function reloadCaptcha() {
             document.getElementById('captcha_image').src = "{% url 'captcha' %}?" + Math.random();
         }
+
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+        
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
 
     </script>
 </body>
