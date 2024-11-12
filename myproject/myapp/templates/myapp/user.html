@@ -362,17 +362,17 @@
             <i class="fab fa-whatsapp"></i> WhatsApp
         </a>
         {% endif %}
-        {% if usuario.tiktok_url %}
+        {% if usuario.mostrar_tiktok and usuario.tiktok_url %}
             <a class="action-button" href="{{ usuario.tiktok_url }}" target="_blank" style="background-color: #EE1D52;">
                 <i class="fab fa-tiktok"></i> TikTok
             </a>
         {% endif %}
-        {% if usuario.instagram_url %}
+        {% if usuario.mostrar_instagram and usuario.instagram_url %}
             <a class="action-button" href="{{ usuario.instagram_url }}" target="_blank" style="background-color: #C13584;">
                 <i class="fab fa-instagram"></i> Instagram
             </a>
         {% endif %}
-        {% if usuario.facebook_url %}
+        {% if usuario.mostrar_facebook and usuario.facebook_url %}
             <a class="action-button" href="{{ usuario.facebook_url }}" target="_blank" style="background-color: #3b5998;">
                 <i class="fab fa-facebook-f"></i> Facebook
             </a>
@@ -442,7 +442,6 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-body">
-                        <!-- Eliminado el campo de nombre -->
                         <div class="mb-3">
                             <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
                             <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ usuario.fecha_nacimiento|date:'Y-m-d' }}" class="form-control rounded-input" required>
@@ -457,6 +456,26 @@
                             <button type="button" class="btn btn-primary rounded-button" onclick="document.getElementById('file-upload').click()">Subir imagen</button>
                             <div class="mt-3">
                                 <img id="image-preview" src="" alt="Vista previa de la imagen" style="width: 100px; height: auto;">
+                            </div>
+                        </div>
+
+                        <!-- Checkbox para mostrar iconos de redes sociales -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="mostrar_whatsapp" name="mostrar_whatsapp" {% if usuario.mostrar_whatsapp %}checked{% endif %}>
+                                <label class="form-check-label" for="mostrar_whatsapp">Mostrar botón de WhatsApp</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="mostrar_tiktok" name="mostrar_tiktok" {% if usuario.mostrar_tiktok %}checked{% endif %}>
+                                <label class="form-check-label" for="mostrar_tiktok">Mostrar botón de TikTok</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="mostrar_instagram" name="mostrar_instagram" {% if usuario.mostrar_instagram %}checked{% endif %}>
+                                <label class="form-check-label" for="mostrar_instagram">Mostrar botón de Instagram</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="mostrar_facebook" name="mostrar_facebook" {% if usuario.mostrar_facebook %}checked{% endif %}>
+                                <label class="form-check-label" for="mostrar_facebook">Mostrar botón de Facebook</label>
                             </div>
                         </div>
 
