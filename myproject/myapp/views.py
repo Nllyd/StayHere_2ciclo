@@ -696,3 +696,16 @@ class AlojamientoDetail(generics.RetrieveUpdateDestroyAPIView):
 class ImagenAlojamientoListCreate(generics.ListCreateAPIView):
     queryset = ImagenAlojamiento.objects.all()
     serializer_class = ImagenAlojamientoSerializer
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        # Obtener el usuario por el correo electrónico (asegurarse de que el usuario exista)
+        try:
+            user = Usuario.objects.get(email=request.data['email'])
+            response.data['user_id'] = user.id  # Añadir el user_id a la respuesta
+        except Usuario.DoesNotExist:
+            response.data['user_id'] = None  # Si no se encuentra, lo configuramos como None
+
+        return response
