@@ -34,7 +34,7 @@ urlpatterns = [
 
     #Tokens de validacion
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
-    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     #Endpoints para flutter
