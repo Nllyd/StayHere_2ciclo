@@ -276,6 +276,14 @@
                 </div>
                 <input type="text" id="captcha" name="captcha" class="form-control" placeholder="Introduce el captcha en mayúsculas" required>
             </div>
+
+            <!-- Checkbox para términos y condiciones -->
+            <div class="form-group mt-3">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">He leído y acepto los 
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">términos y condiciones</a>.
+                </label>
+            </div>
         
             <button type="submit" class="btn btn-primary btn-block mt-3">Registrarse</button>
         </form>
@@ -283,6 +291,83 @@
         <hr class="hr">
         
         <p class="register-link">¿Ya tienes una cuenta? <a href="{% url 'login' %}">Iniciar sesión aquí</a></p>
+    </div>
+
+    <!-- Modal de términos y condiciones -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="termsModalLabel">Términos y Condiciones</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <h4>Términos y Condiciones de "Stay Here"</h4>
+                        <p><strong>Fecha de última actualización:</strong> 27 de noviembre del 2024</p>
+                    
+                        <p>Estos términos y condiciones ("Términos") regulan el uso del aplicativo web y móvil "Stay Here". Al acceder o utilizar "Stay Here", usted acepta estar legalmente vinculado por estos Términos. Si no está de acuerdo, no haga uso del servicio.</p>
+                    
+                        <h6>1. Descripción del Servicio</h6>
+                        <p>"Stay Here" es una plataforma que conecta estudiantes y arrendadores en Lima, Perú, para facilitar la búsqueda de alojamientos. La plataforma permite que arrendadores publiquen espacios disponibles y que estudiantes interesados puedan contactarlos directamente.</p>
+                    
+                        <h6>2. Condiciones Generales</h6>
+                        <p><strong>2.1. Aceptación de los Términos:</strong> El uso de "Stay Here" implica la aceptación plena de estos Términos y el cumplimiento de la legislación peruana, incluidas, entre otras, las normas de la Constitución Política del Perú, el Código Civil, y la Ley de Protección de Datos Personales (Ley N° 29733).</p>
+                        <p><strong>2.2. Edad mínima:</strong> El uso de "Stay Here" está permitido únicamente para personas mayores de 18 años.</p>
+                        <p><strong>2.3. Acceso al servicio:</strong> Nos reservamos el derecho de modificar, suspender o interrumpir el servicio parcial o totalmente sin previo aviso.</p>
+                    
+                        <h6>3. Registro y Responsabilidades del Usuario</h6>
+                        <p><strong>3.1. Creación de una cuenta:</strong> Para utilizar los servicios de "Stay Here", es necesario registrarse proporcionando información verdadera, precisa, actualizada y completa. El usuario es responsable de mantener la seguridad de su cuenta.</p>
+                        <p><strong>3.2. Tipo de usuarios:</strong></p>
+                        <ul>
+                            <li><strong>Estudiantes:</strong> Usuarios que buscan alojamientos.</li>
+                            <li><strong>Arrendadores:</strong> Usuarios que ofrecen alojamientos.</li>
+                        </ul>
+                        <p><strong>3.3. Veracidad de la información:</strong> Es responsabilidad de los usuarios garantizar que toda la información proporcionada en la plataforma sea verídica. El uso de datos falsos o engañosos puede llevar a la suspensión o cancelación de la cuenta.</p>
+                        <p><strong>3.4. Prohibiciones:</strong></p>
+                        <ul>
+                            <li>Usar la plataforma para fines ilícitos, fraudulentos o contrarios a la moral y el orden público.</li>
+                            <li>Publicar contenido ofensivo, discriminatorio o que vulnere derechos de terceros.</li>
+                        </ul>
+                    
+                        <h6>4. Relación entre Usuarios</h6>
+                        <p>"Stay Here" es únicamente un intermediario. No somos parte de los contratos o acuerdos que se celebren entre estudiantes y arrendadores. La responsabilidad de verificar la autenticidad y legalidad de las publicaciones recae exclusivamente en los usuarios.</p>
+                    
+                        <h6>5. Política de Protección de Datos Personales</h6>
+                        <p><strong>5.1. Uso de la información:</strong> Los datos personales proporcionados serán tratados conforme a la Ley N° 29733 y su reglamento. Los datos se utilizarán exclusivamente para brindar el servicio, como facilitar la comunicación entre estudiantes y arrendadores.</p>
+                        <p><strong>5.2. Derechos del usuario:</strong> Los usuarios tienen derecho a acceder, rectificar, cancelar u oponerse al uso de sus datos personales. Para ejercer estos derechos, pueden contactarnos a través de jaredalejandro.gb@hotmail.com.</p>
+                        <p><strong>5.3. Seguridad de los datos:</strong> Adoptamos medidas de seguridad razonables para proteger la información personal de los usuarios. Sin embargo, no garantizamos seguridad absoluta.</p>
+                    
+                        <h6>6. Publicaciones de Arrendadores</h6>
+                        <p><strong>6.1. Responsabilidad sobre los anuncios:</strong> Los arrendadores son responsables de garantizar que las descripciones, imágenes y precios publicados sean precisos y cumplan con la legislación vigente.</p>
+                        <p><strong>6.2. Prohibición de discriminación:</strong> No se permitirá ningún contenido que promueva la discriminación basada en raza, género, religión, orientación sexual, o cualquier otro motivo prohibido por la Constitución Política del Perú.</p>
+                    
+                        <h6>7. Limitación de Responsabilidad</h6>
+                        <p><strong>7.1. Exclusión de responsabilidad:</strong> "Stay Here" no garantiza la disponibilidad, calidad o seguridad de los alojamientos ofrecidos en la plataforma.</p>
+                        <p><strong>7.2. Relación contractual:</strong> Cualquier acuerdo entre estudiantes y arrendadores es responsabilidad exclusiva de las partes involucradas. "Stay Here" no será responsable por daños, pérdidas o conflictos derivados del uso de la plataforma.</p>
+                    
+                        <h6>8. Suspensión o Cancelación de Cuentas</h6>
+                        <p>Podemos suspender o cancelar cuentas de usuarios que incumplan estos Términos o las leyes aplicables, sin previo aviso.</p>
+                    
+                        <h6>9. Propiedad Intelectual</h6>
+                        <p>Todo el contenido de "Stay Here", incluyendo logos, textos, diseños y códigos, es propiedad exclusiva de StayHereCompany. Está prohibido reproducir, distribuir o modificar cualquier contenido sin autorización.</p>
+                    
+                        <h6>10. Modificaciones a los Términos</h6>
+                        <p>Nos reservamos el derecho de modificar estos Términos en cualquier momento. Los cambios entrarán en vigor desde su publicación en la plataforma. El uso continuo del servicio implica la aceptación de los términos actualizados.</p>
+                    
+                        <h6>11. Ley Aplicable y Jurisdicción</h6>
+                        <p>Estos Términos se rigen por las leyes peruanas. Cualquier controversia será resuelta en los tribunales de Lima, Perú.</p>
+                    
+                        <h6>12. Contacto</h6>
+                        <p>Para consultas sobre estos Términos, puede contactarnos en jaredalejandro.gb@hotmail.com.</p>
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
