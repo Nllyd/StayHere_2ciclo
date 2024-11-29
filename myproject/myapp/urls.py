@@ -39,8 +39,8 @@ urlpatterns = [
 
     # Endpoints para Flutter
     path('api/login/', views.login_usuario, name='api-login'),
-    path('api/usuarios/', views.create_usuario, name='usuario-list-create'),
-    path('api/usuarios/email/<str:email>/', views.UsuarioDetailByEmail.as_view(), name='usuario-detail-email'),  # Modificado
+    path('api/usuarios/', views.UsuarioListCreate.as_view(), name='usuario-list-create'),
+    path('api/usuarios/email/<str:email>/', views.UsuarioDetailByEmail.as_view(), name='usuario-detail-email'),
     path('api/alojamientos/', views.AlojamientoListCreate.as_view(), name='alojamiento-list-create'),
     path('api/alojamientos/<int:pk>/', views.AlojamientoDetail.as_view(), name='alojamiento-detail'),
     path('api/imagenes/', views.ImagenAlojamientoListCreate.as_view(), name='imagen-list-create'),
