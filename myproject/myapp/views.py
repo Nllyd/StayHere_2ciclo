@@ -676,17 +676,17 @@ def login_usuario(request):
     
 
 
-class UsuarioDetailByEmail(APIView):
-    permission_classes = [IsAuthenticated]  # Asegúrate de que el usuario esté autenticado
+class UsuarioDetailByEmail(generics.RetrieveAPIView):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+    lookup_field = 'email'  # Esto permitirá buscar por email en lugar de id
 
-    def get(self, request, email, format=None):
+    def get_object(self):
+        email = self.kwargs.get('email')
         try:
-            usuario = Usuario.objects.get(email=email)  # Buscar al usuario por email
+            return Usuario.objects.get(email=email)
         except Usuario.DoesNotExist:
-            return Response({"error": "Usuario no encontrado"}, status=404)
-
-        serializer = UsuarioSerializer(usuario)
-        return Response(serializer.data)
+            raise Http404
         
 class UsuarioListCreate(generics.ListCreateAPIView):
     queryset = Usuario.objects.all()
