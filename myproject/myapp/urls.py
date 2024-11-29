@@ -32,15 +32,15 @@ urlpatterns = [
     path('validar_rechazar_usuario/', validar_rechazar_usuario, name='validar_rechazar_usuario'),
 
 
-    #Tokens de validacion
+ # Token de validación
     path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    #Endpoints para flutter
-    path('api/login/', login_usuario, name='api-login'),
+    # Endpoints para Flutter
+    path('api/login/', views.login_usuario, name='api-login'),
     path('api/usuarios/', views.create_usuario, name='usuario-list-create'),
-    path('api/usuarios/<int:pk>/', views.UsuarioDetail.as_view(), name='usuario-detail'),
+    path('api/usuarios/email/<str:email>/', views.UsuarioDetailByEmail.as_view(), name='usuario-detail-email'),  # Modificado
     path('api/alojamientos/', views.AlojamientoListCreate.as_view(), name='alojamiento-list-create'),
     path('api/alojamientos/<int:pk>/', views.AlojamientoDetail.as_view(), name='alojamiento-detail'),
     path('api/imagenes/', views.ImagenAlojamientoListCreate.as_view(), name='imagen-list-create'),
