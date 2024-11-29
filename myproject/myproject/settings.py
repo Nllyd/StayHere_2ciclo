@@ -137,3 +137,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_TRUSTED_ORIGINS = ['http://192.168.18.12:8000',
                        'https://stayhere-web.onrender.com',]
+CSRF_COOKIE_SECURE = False
