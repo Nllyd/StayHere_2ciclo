@@ -644,6 +644,7 @@ def create_usuario(request):
             nombre=nombre,
             telefono=telefono,
             fecha_nacimiento=fecha_nacimiento,
+            tipo_usuario=tipo_usuario,
             password=password
         )
         usuario.save()
