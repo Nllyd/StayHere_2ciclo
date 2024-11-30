@@ -624,6 +624,7 @@ def create_usuario(request):
     password = data.get('password')
     nombre = data.get('nombre')
     telefono = data.get('telefono')
+    tipo_usuario = data.get('tipo_usuario')
     fecha_nacimiento_str = data.get('fecha_nacimiento')
 
     if not email or not password or not nombre or not telefono or not fecha_nacimiento_str:
@@ -643,6 +644,7 @@ def create_usuario(request):
             nombre=nombre,
             telefono=telefono,
             fecha_nacimiento=fecha_nacimiento,
+            tipo_usuario=tipo_usuario,
             password=password
         )
         usuario.save()
