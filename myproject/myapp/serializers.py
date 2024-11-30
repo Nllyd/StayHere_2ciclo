@@ -4,7 +4,7 @@ from .models import Usuario, Alojamiento, ImagenAlojamiento
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'email', 'nombre', 'telefono', 'fecha_nacimiento', 'edad']
+        fields = ['id', 'email', 'nombre', 'telefono', 'fecha_nacimiento', 'tipo_usuario' ,'edad']
     
     edad = serializers.ReadOnlyField()
 
