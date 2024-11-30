@@ -6,7 +6,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ['id', 'email', 'nombre', 'telefono', 'fecha_nacimiento', 'edad', 'password']
+        fields = ['id', 'email', 'nombre', 'telefono', 'fecha_nacimiento', 'tipo_usuario' ,'edad', 'password']
 
     edad = serializers.ReadOnlyField()
 
