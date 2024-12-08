@@ -269,7 +269,7 @@
                 <div class="modal-body">
                     <form id="verificationForm" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="email" id="email" value="{{ user.email }}"> <!-- Email del usuario -->
+                        <input type="hidden" name="email" id="verificationEmail" value="">
                         <div class="mb-3">
                             <label for="verification_code" class="form-label">Introduce tu código de verificación:</label>
                             <input type="text" class="form-control" id="verification_code" name="verification_code" required>
@@ -309,25 +309,20 @@
         $(document).ready(function() {
             // Manejar el envío del formulario de login
             $('form').on('submit', function(event) {
-                event.preventDefault(); // Evitar el envío tradicional del formulario
-                const formData = $(this).serialize(); // Serializar datos del formulario
-        
+                event.preventDefault();
+                const formData = $(this).serialize();
                 $.ajax({
                     type: 'POST',
-                    url: $(this).attr('action'), // Usar la URL del backend
+                    url: $(this).attr('action'),
                     data: formData,
                     success: function(response) {
                         if (response.success) {
-                            // Redirigir si el inicio de sesión es exitoso
                             if (response.redirect) {
                                 window.location.href = response.redirect;
                             }
                         } else if (response.show_verification_modal) {
-                            // Mostrar el modal si la verificación es necesaria
+                            $('#verificationEmail').val($('input[name="email"]').val()); // Asigna el correo electrónico al campo oculto
                             $('#verificationModal').modal('show');
-                        } else if (response.show_verification_message) {
-                            // Redirigir a la página de verificación para arrendadores
-                            window.location.href = '/arrendador_verification_message';
                         } else {
                             alert(response.error || 'Error desconocido.');
                         }
