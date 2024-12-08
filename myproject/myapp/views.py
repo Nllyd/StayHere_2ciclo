@@ -101,8 +101,8 @@ def login_view(request):
                 # Usuario no verificado
                 if user.tipo_usuario.lower() == 'estudiante':
                     return JsonResponse({'success': False, 'show_verification_modal': True})
-                elif user.tipo_usuario.lower() == 'arrendador':
-                    return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})
+            elif user.tipo_usuario.lower() == 'arrendador':
+                return JsonResponse({'success': False, 'show_verification_message': True})
                 else:
                     # Tipo de usuario no reconocido
                     return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
