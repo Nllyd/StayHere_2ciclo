@@ -310,11 +310,13 @@
             const csrftoken = $('[name=csrfmiddlewaretoken]').val();
 
         $('form').on('submit', function(event) {
-            event.preventDefault();
+            event.preventDefault(); // Evitar el envío tradicional del formulario
+            const formData = $(this).serialize(); // Serializar los datos del formulario
+        
             $.ajax({
                 type: 'POST',
-                url: $(this).attr('action'),
-                data: $(this).serialize(),
+                url: $(this).attr('action'), // Asegúrate de que apunta a la URL del backend
+                data: formData,
                 success: function(response) {
                     if (response.success) {
                         // Redirigir si el login fue exitoso
@@ -337,7 +339,6 @@
                 }
             });
         });
-
 
        $('#verificationForm').on('submit', function(event) {
         event.preventDefault();
