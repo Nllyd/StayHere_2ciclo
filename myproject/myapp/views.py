@@ -71,10 +71,14 @@ from django.core.cache import cache
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
-        user_captcha = request.POST['captcha']
-        
+        email = request.POST.get('email')  # Usa .get() para manejar casos donde falte el campo
+        password = request.POST.get('password')
+        user_captcha = request.POST.get('captcha')
+
+        # Validar campos
+        if not email or not password or not user_captcha:
+            return JsonResponse({'success': False, 'error': 'Todos los campos son obligatorios.'})
+
         # Verificar el captcha almacenado en caché
         captcha_stored = cache.get(request.session.session_key)
         if user_captcha != captcha_stored:
@@ -96,7 +100,6 @@ def login_view(request):
                 elif user.tipo_usuario.lower() == 'arrendador':
                     return JsonResponse({'success': True, 'redirect': '/home'})
                 else:
-                    # Tipo de usuario no reconocido
                     return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
             else:
                 # Usuario no verificado
@@ -105,14 +108,13 @@ def login_view(request):
                 elif user.tipo_usuario.lower() == 'arrendador':
                     return JsonResponse({'success': False, 'show_verification_message': True})
                 else:
-                    # Tipo de usuario no reconocido
                     return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
         else:
-            # Credenciales incorrectas
             return JsonResponse({'success': False, 'error': 'Correo o contraseña incorrectos'})
 
     # Renderizar página de login para solicitudes GET
     return render(request, 'myapp/login.html')
+
 
 @login_required
 def nuevo_view(request):
