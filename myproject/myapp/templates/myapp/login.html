@@ -317,11 +317,14 @@
                 success: function(response) {
                     if (response.success) {
                         if (response.show_verification_modal) {
-                            // Asegurarse de que el modal esté visible
+                            // Asegúrate de que el modal esté visible
                             $('#verificationModal').modal('show');
                         } else if (response.redirect) {
                             window.location.href = response.redirect;
                         }
+                    } else if (response.show_verification_modal) {
+                        // Mostrar el modal aunque el éxito sea "false"
+                        $('#verificationModal').modal('show');
                     } else {
                         alert(response.error || 'Error desconocido.');
                     }
