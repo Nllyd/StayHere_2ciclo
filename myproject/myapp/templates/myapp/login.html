@@ -308,32 +308,30 @@
         $(document).ready(function() {
             const csrftoken = $('[name=csrfmiddlewaretoken]').val();
 
-            $('form').on('submit', function(event) {
-                event.preventDefault();
-                $.ajax({
-                    type: 'POST',
-                    url: $(this).attr('action'),
-                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken,
-                    success: function(response) {
-                        if (response.success) {
-                            if (response.show_verification_modal) {
-                                $('#verificationModal').modal('show'); // Mostrar el modal
-                            } else if (response.redirect) {
-                                window.location.href = response.redirect;
-                            }
-                        } else {
-                            if (response.redirect) {
-                                window.location.href = response.redirect;
-                            } else {
-                                alert(response.error);
-                            }
+        $('form').on('submit', function(event) {
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        if (response.show_verification_modal) {
+                            // Asegurarse de que el modal esté visible
+                            $('#verificationModal').modal('show');
+                        } else if (response.redirect) {
+                            window.location.href = response.redirect;
                         }
-                    },
-                    error: function(xhr) {
-                        alert('Error en el servidor. Intenta más tarde.');
+                    } else {
+                        alert(response.error || 'Error desconocido.');
                     }
-                });
+                },
+                error: function() {
+                    alert('Error en el servidor. Intenta más tarde.');
+                }
             });
+        });
+
 
             $('#verificationForm').on('submit', function(event) {
                 event.preventDefault();
