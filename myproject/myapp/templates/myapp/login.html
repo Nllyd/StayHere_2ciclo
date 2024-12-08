@@ -321,10 +321,13 @@
                             window.location.href = response.redirect;
                         }
                     } else if (response.show_verification_modal) {
-                        // Mostrar el modal de verificación si es necesario
+                        // Mostrar el modal de verificación para estudiantes
                         $('#verificationModal').modal('show');
+                    } else if (response.show_verification_message) {
+                        // Redirigir a la página de mensaje de verificación para arrendadores
+                        window.location.href = '/arrendador_verification_message';
                     } else {
-                        // Mostrar el error proporcionado por el servidor
+                        // Mostrar cualquier otro error
                         alert(response.error || 'Error desconocido.');
                     }
                 },
@@ -334,8 +337,9 @@
             });
         });
 
-            $('#verificationForm').on('submit', function(event) {
-                event.preventDefault();
+
+        $('#verificationForm').on('submit', function(event) {
+            event.preventDefault();
                 $.ajax({
                     type: 'POST',
                     url: "{% url 'verification_code' %}",
