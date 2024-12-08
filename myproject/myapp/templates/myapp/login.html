@@ -316,16 +316,15 @@
                 data: $(this).serialize(),
                 success: function(response) {
                     if (response.success) {
-                        if (response.show_verification_modal) {
-                            // Asegúrate de que el modal esté visible
-                            $('#verificationModal').modal('show');
-                        } else if (response.redirect) {
+                        // Redirigir si el login fue exitoso
+                        if (response.redirect) {
                             window.location.href = response.redirect;
                         }
                     } else if (response.show_verification_modal) {
-                        // Mostrar el modal aunque el éxito sea "false"
+                        // Mostrar el modal de verificación si es necesario
                         $('#verificationModal').modal('show');
                     } else {
+                        // Mostrar el error proporcionado por el servidor
                         alert(response.error || 'Error desconocido.');
                     }
                 },
@@ -334,7 +333,6 @@
                 }
             });
         });
-
 
             $('#verificationForm').on('submit', function(event) {
                 event.preventDefault();
