@@ -64,6 +64,12 @@ def alojamiento_detalle_view(request, alojamiento_id):
     alojamiento = get_object_or_404(Alojamiento, id=alojamiento_id)
     return render(request, 'myapp/habitaciones.html', {'alojamiento': alojamiento})
 
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.contrib import messages
+from django.core.cache import cache
+
 def login_view(request):
     if request.method == 'POST':
         email = request.POST['email']
@@ -75,33 +81,36 @@ def login_view(request):
         if user_captcha != captcha_stored:
             return JsonResponse({'success': False, 'error': 'Captcha incorrecto'})
 
+        # Autenticar usuario
         user = authenticate(request, username=email, password=password)
         if user is not None:
             if user.is_verified:
+                # Usuario verificado: iniciar sesión y redirigir
                 login(request, user)
                 messages.success(request, 'Logueo exitoso')
-                
-                if user.is_superuser:
-                    return JsonResponse({'success': True, 'redirect': '/admin_users'})
-            
-                # Verifica el tipo de usuario y el estado de verificación
-                # Verificar el tipo de usuario y redirigir adecuadamente
-                if user.tipo_usuario.lower() == 'estudiante':
-                    if user.is_verified:
-                        return JsonResponse({'success': True, 'redirect': '/home'})
-                    else:
-                        # Siempre mostrar el modal si no está verificado
-                        return JsonResponse({'success': False, 'show_verification_modal': True})
-                        
-                elif user.tipo_usuario.lower() == 'arrendador':
-                    if user.is_verified:
-                        return JsonResponse({'success': True, 'redirect': '/home'})  # Redirigir a home si es arrendador y verificado
-                    else:
-                        return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})  # Redirigir a la página de mensaje si no está verificado
 
+                # Manejo basado en tipo de usuario
+                if user.tipo_usuario.lower() == 'estudiante':
+                    return JsonResponse({'success': True, 'redirect': '/home'})
+                elif user.tipo_usuario.lower() == 'arrendador':
+                    return JsonResponse({'success': True, 'redirect': '/home'})
+                else:
+                    # Tipo de usuario no reconocido
+                    return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
+            else:
+                # Usuario no verificado
+                if user.tipo_usuario.lower() == 'estudiante':
+                    return JsonResponse({'success': False, 'show_verification_modal': True})
+                elif user.tipo_usuario.lower() == 'arrendador':
+                    return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})
+                else:
+                    # Tipo de usuario no reconocido
+                    return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
         else:
+            # Credenciales incorrectas
             return JsonResponse({'success': False, 'error': 'Correo o contraseña incorrectos'})
 
+    # Renderizar página de login para solicitudes GET
     return render(request, 'myapp/login.html')
 
 @login_required
