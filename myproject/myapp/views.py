@@ -321,19 +321,27 @@ def editar_alojamiento_view(request, alojamiento_id):
 # --------------------------- CODIGOS DE VALIDACION ---------------------------
 @csrf_exempt
 def verification_code_view(request):
-    # Asegúrate de que el usuario esté autenticado
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            code_entered = request.POST.get('verification_code')
-            if code_entered == request.user.verification_code:
-                request.user.is_verified = True
-                request.user.save()
-                messages.success(request, 'Correo verificado exitosamente.')
-                return JsonResponse({'success': True})  # Retornar éxito si la verificación es correcta
+    if request.method == 'POST':
+        email = request.POST.get('email')  # Asegúrate de que el email se envía desde el modal
+        verification_code = request.POST.get('verification_code')
+
+        if not email or not verification_code:
+            return JsonResponse({'success': False, 'error': 'Faltan datos para la verificación.'})
+
+        try:
+            # Buscar al usuario por su correo electrónico
+            user = User.objects.get(email=email)
+
+            if user.verification_code == verification_code:
+                user.is_verified = True
+                user.save()
+                return JsonResponse({'success': True, 'redirect': '/home'})
             else:
                 return JsonResponse({'success': False, 'error': 'Código de verificación incorrecto.'})
-
-    return JsonResponse({'success': False, 'error': 'Usuario no autenticado.'})
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Usuario no encontrado.'})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido.'})
 
 def arrendador_verification_message_view(request):
     return render(request, 'myapp/arrendador_verification_message.html')
