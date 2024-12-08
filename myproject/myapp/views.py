@@ -90,7 +90,7 @@ def login_view(request):
                     return JsonResponse({'success': True, 'redirect': '/home'})
                 else:
                     # Siempre mostrar el modal si no está verificado
-                    return JsonResponse({'success': True, 'show_verification_modal': True})
+                    return JsonResponse({'success': False, 'show_verification_modal': True})
                     
             elif user.tipo_usuario.lower() == 'arrendador':
                 if user.is_verified:
