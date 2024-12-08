@@ -35,13 +35,13 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'myapp.middleware.RequireVerifiedUserMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Antes del middleware personalizado
+    'myapp.middleware.RequireVerifiedUserMiddleware',          # Después de AuthenticationMiddleware
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
