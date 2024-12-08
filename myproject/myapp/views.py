@@ -21,7 +21,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
 from datetime import datetime
-from .models import Usuario
 import random
 import string
 from io import BytesIO
@@ -330,7 +329,7 @@ def verification_code_view(request):
 
         try:
             # Buscar al usuario por su correo electrónico
-            user = User.objects.get(email=email)
+            user = Usuario.objects.get(email=email)  # Cambia a tu modelo personalizado
 
             if user.verification_code == verification_code:
                 user.is_verified = True
@@ -338,7 +337,7 @@ def verification_code_view(request):
                 return JsonResponse({'success': True, 'redirect': '/home'})
             else:
                 return JsonResponse({'success': False, 'error': 'Código de verificación incorrecto.'})
-        except User.DoesNotExist:
+        except Usuario.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Usuario no encontrado.'})
     
     return JsonResponse({'success': False, 'error': 'Método no permitido.'})
