@@ -307,36 +307,35 @@
         }
 
         $(document).ready(function() {
-            const csrftoken = $('[name=csrfmiddlewaretoken]').val();
-
-        $('form').on('submit', function(event) {
-            event.preventDefault(); // Evitar el envío tradicional del formulario
-            const formData = $(this).serialize(); // Serializar los datos del formulario
+            // Manejar el envío del formulario de login
+            $('form').on('submit', function(event) {
+                event.preventDefault(); // Evitar el envío tradicional del formulario
+                const formData = $(this).serialize(); // Serializar datos del formulario
         
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'), // Asegúrate de que apunta a la URL del backend
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        // Redirigir si el login fue exitoso
-                        if (response.redirect) {
-                            window.location.href = response.redirect;
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'), // Usar la URL del backend
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            // Redirigir si el inicio de sesión es exitoso
+                            if (response.redirect) {
+                                window.location.href = response.redirect;
+                            }
+                        } else if (response.show_verification_modal) {
+                            // Mostrar el modal si la verificación es necesaria
+                            $('#verificationModal').modal('show');
+                        } else if (response.show_verification_message) {
+                            // Redirigir a la página de verificación para arrendadores
+                            window.location.href = '/arrendador_verification_message';
+                        } else {
+                            alert(response.error || 'Error desconocido.');
                         }
-                    } else if (response.show_verification_modal) {
-                        // Mostrar el modal de verificación para estudiantes
-                        $('#verificationModal').modal('show');
-                    } else if (response.show_verification_message) {
-                        // Redirigir a la página de mensaje de verificación para arrendadores
-                        window.location.href = '/arrendador_verification_message';
-                    } else {
-                        // Mostrar cualquier otro error
-                        alert(response.error || 'Error desconocido.');
+                    },
+                    error: function() {
+                        alert('Error en el servidor. Intenta más tarde.');
                     }
-                },
-                error: function() {
-                    alert('Error en el servidor. Intenta más tarde.');
-                }
+                });
             });
         });
 
@@ -376,6 +375,6 @@
             }
         });
 
-    </script>
+</script>
 </body>
 </html>
