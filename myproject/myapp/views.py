@@ -77,26 +77,27 @@ def login_view(request):
 
         user = authenticate(request, username=email, password=password)
         if user is not None:
-            login(request, user)
-            messages.success(request, 'Logueo exitoso')
+            if user.is_verified:
+                login(request, user)
+                messages.success(request, 'Logueo exitoso')
+                
+                if user.is_superuser:
+                    return JsonResponse({'success': True, 'redirect': '/admin_users'})
             
-            if user.is_superuser:
-                return JsonResponse({'success': True, 'redirect': '/admin_users'})
-        
-            # Verifica el tipo de usuario y el estado de verificación
-            # Verificar el tipo de usuario y redirigir adecuadamente
-            if user.tipo_usuario.lower() == 'estudiante':
-                if user.is_verified:
-                    return JsonResponse({'success': True, 'redirect': '/home'})
-                else:
-                    # Siempre mostrar el modal si no está verificado
-                    return JsonResponse({'success': False, 'show_verification_modal': True})
-                    
-            elif user.tipo_usuario.lower() == 'arrendador':
-                if user.is_verified:
-                    return JsonResponse({'success': True, 'redirect': '/home'})  # Redirigir a home si es arrendador y verificado
-                else:
-                    return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})  # Redirigir a la página de mensaje si no está verificado
+                # Verifica el tipo de usuario y el estado de verificación
+                # Verificar el tipo de usuario y redirigir adecuadamente
+                if user.tipo_usuario.lower() == 'estudiante':
+                    if user.is_verified:
+                        return JsonResponse({'success': True, 'redirect': '/home'})
+                    else:
+                        # Siempre mostrar el modal si no está verificado
+                        return JsonResponse({'success': False, 'show_verification_modal': True})
+                        
+                elif user.tipo_usuario.lower() == 'arrendador':
+                    if user.is_verified:
+                        return JsonResponse({'success': True, 'redirect': '/home'})  # Redirigir a home si es arrendador y verificado
+                    else:
+                        return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})  # Redirigir a la página de mensaje si no está verificado
 
         else:
             return JsonResponse({'success': False, 'error': 'Correo o contraseña incorrectos'})
