@@ -103,9 +103,9 @@ def login_view(request):
                     return JsonResponse({'success': False, 'show_verification_modal': True})
                 elif user.tipo_usuario.lower() == 'arrendador':
                     return JsonResponse({'success': False, 'show_verification_message': True})
-                    else:
-                        # Tipo de usuario no reconocido
-                        return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
+                else:
+                    # Tipo de usuario no reconocido
+                    return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
         else:
             # Credenciales incorrectas
             return JsonResponse({'success': False, 'error': 'Correo o contraseña incorrectos'})
