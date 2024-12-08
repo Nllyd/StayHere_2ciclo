@@ -269,6 +269,7 @@
                 <div class="modal-body">
                     <form id="verificationForm" method="post">
                         {% csrf_token %}
+                        <input type="hidden" name="email" id="email" value="{{ user.email }}"> <!-- Email del usuario -->
                         <div class="mb-3">
                             <label for="verification_code" class="form-label">Introduce tu código de verificación:</label>
                             <input type="text" class="form-control" id="verification_code" name="verification_code" required>
@@ -338,25 +339,26 @@
         });
 
 
-        $('#verificationForm').on('submit', function(event) {
-            event.preventDefault();
-                $.ajax({
-                    type: 'POST',
-                    url: "{% url 'verification_code' %}",
-                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken,
-                    success: function(response) {
-                        if (response.success) {
-                            window.location.href = "{% url 'home' %}";
-                        } else {
-                            $('#verificationError').text(response.error).show();
-                        }
-                    },
-                    error: function(xhr) {
-                        $('#verificationError').text('Error en el servidor.').show();
-                    }
-                });
-            });
+       $('#verificationForm').on('submit', function(event) {
+        event.preventDefault();
+        const formData = $(this).serialize(); // Serializar los datos del formulario
+    
+        $.ajax({
+            type: 'POST',
+            url: '/verification_code/',  // URL del backend para verificar el código
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = response.redirect;  // Redirigir si la verificación es exitosa
+                } else {
+                    $('#verificationError').text(response.error).show();  // Mostrar error específico
+                }
+            },
+            error: function(xhr) {
+                $('#verificationError').text('Error en el servidor. Intenta más tarde.').show();
+            }
         });
+    });
 
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
