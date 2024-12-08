@@ -90,6 +90,8 @@ def login_view(request):
                 messages.success(request, 'Logueo exitoso')
 
                 # Manejo basado en tipo de usuario
+                if user.is_superuser:
+                    return JsonResponse({'success': True, 'redirect': '/admin_users'})
                 if user.tipo_usuario.lower() == 'estudiante':
                     return JsonResponse({'success': True, 'redirect': '/home'})
                 elif user.tipo_usuario.lower() == 'arrendador':
