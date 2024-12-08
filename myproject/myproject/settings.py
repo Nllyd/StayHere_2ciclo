@@ -21,6 +21,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['192.168.18.12', '127.0.0.1', 'localhost','stayhere-web.onrender.com']
 
 INSTALLED_APPS = [
+    'channels',
     'myapp',
     'rest_framework',
     'corsheaders',
@@ -53,6 +54,13 @@ REST_FRAMEWORK = {
 }
 
 ROOT_URLCONF = 'myproject.urls'
+ASGI_APPLICATION = 'myproject.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 TEMPLATES = [
     {
@@ -77,9 +85,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'railway',
         'USER': 'root',
-        'PASSWORD': 'oMLwIlTHnqxNzidWUCoMKXwXWrBUJKMk',
-        'HOST': 'autorack.proxy.rlwy.net',
-        'PORT': '25526',
+        'PASSWORD': 'NvrFEctYTusrEnptLZiBKcwnSgOIsaaL',
+        'HOST': 'junction.proxy.rlwy.net',
+        'PORT': '30697',
     }
 }
 
