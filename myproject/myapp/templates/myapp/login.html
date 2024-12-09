@@ -198,12 +198,12 @@
     
     <div class="sidebar" id="sidebar">
         {% if user.is_authenticated %}
-            {% if user.tipo_usuario == 'Arrendador' %}
+            {% if user.tipo_usuario|lower == 'arrendador' %}
                 <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
                 <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
                 <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
                 <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
-            {% elif user.tipo_usuario == 'Estudiante' %}
+            {% elif user.tipo_usuario|lower == 'estudiante' %}
                 <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
                 <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
                 <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
@@ -215,8 +215,7 @@
             {% endif %}
         {% else %}
             <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesion</a>
-            <a href="{% url 'login' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
-            <a href="{% url 'login' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+             <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
         {% endif %}
     </div>
 
@@ -269,7 +268,6 @@
                 <div class="modal-body">
                     <form id="verificationForm" method="post">
                         {% csrf_token %}
-                        <input type="hidden" name="email" id="verificationEmail" value="">
                         <div class="mb-3">
                             <label for="verification_code" class="form-label">Introduce tu código de verificación:</label>
                             <input type="text" class="form-control" id="verification_code" name="verification_code" required>
@@ -307,53 +305,54 @@
         }
 
         $(document).ready(function() {
-            // Manejar el envío del formulario de login
+            const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+
             $('form').on('submit', function(event) {
                 event.preventDefault();
-                const formData = $(this).serialize();
                 $.ajax({
                     type: 'POST',
                     url: $(this).attr('action'),
-                    data: formData,
+                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken,
                     success: function(response) {
                         if (response.success) {
-                            if (response.redirect) {
+                            if (response.show_verification_modal) {
+                                $('#verificationModal').modal('show'); // Mostrar el modal
+                            } else if (response.redirect) {
                                 window.location.href = response.redirect;
                             }
-                        } else if (response.show_verification_modal) {
-                            $('#verificationEmail').val($('input[name="email"]').val()); // Asigna el correo electrónico al campo oculto
-                            $('#verificationModal').modal('show');
                         } else {
-                            alert(response.error || 'Error desconocido.');
+                            if (response.redirect) {
+                                window.location.href = response.redirect;
+                            } else {
+                                alert(response.error);
+                            }
                         }
                     },
-                    error: function() {
+                    error: function(xhr) {
                         alert('Error en el servidor. Intenta más tarde.');
                     }
                 });
             });
-        });
 
-       $('#verificationForm').on('submit', function(event) {
-        event.preventDefault();
-        const formData = $(this).serialize(); // Serializar los datos del formulario
-    
-        $.ajax({
-            type: 'POST',
-            url: '/verification_code/',  // URL del backend para verificar el código
-            data: formData,
-            success: function(response) {
-                if (response.success) {
-                    window.location.href = response.redirect;  // Redirigir si la verificación es exitosa
-                } else {
-                    $('#verificationError').text(response.error).show();  // Mostrar error específico
-                }
-            },
-            error: function(xhr) {
-                $('#verificationError').text('Error en el servidor. Intenta más tarde.').show();
-            }
+            $('#verificationForm').on('submit', function(event) {
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'verification_code' %}",
+                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken,
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = "{% url 'home' %}";
+                        } else {
+                            $('#verificationError').text(response.error).show();
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#verificationError').text('Error en el servidor.').show();
+                    }
+                });
+            });
         });
-    });
 
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
@@ -370,6 +369,6 @@
             }
         });
 
-</script>
+    </script>
 </body>
 </html>
