@@ -475,12 +475,12 @@
 
     <div class="sidebar" id="sidebar">
         {% if user.is_authenticated %}
-            {% if user.tipo_usuario == 'Arrendador' %}
+            {% if user.tipo_usuario|lower == 'arrendador' %}
                 <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
                 <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
                 <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
                 <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
-            {% elif user.tipo_usuario == 'Estudiante' %}
+            {% elif user.tipo_usuario|lower == 'estudiante' %}
                 <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
                 <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
                 <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
@@ -492,7 +492,6 @@
             {% endif %}
         {% else %}
             <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesion</a>
-            <a href="{% url 'login' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
             <a href="{% url 'login' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
         {% endif %}
     </div>
