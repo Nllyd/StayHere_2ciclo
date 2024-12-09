@@ -1,16 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habitaciones</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.css"/>
-    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'myapp/images/Imagenes StayHere/PandaRojo_Casa.png' %}">
+    <title>Stay Here - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        
         * {
             margin: 0;
             padding: 0;
@@ -31,7 +29,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 10;
+            z-index: 10; /* Aumentamos el z-index */
         }
 
         header img {
@@ -80,180 +78,388 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: #212F38;
-            color: #fff;
+            background-color: #212F38; /* Color oscuro para que contraste */
+            color: #fff; /* Color blanco para el icono */
             border: none;
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
-            z-index: 11;
+            z-index: 11; /* Asegúrate que esté por encima del contenido */
             transition: background-color 0.3s;
             font-size: 24px;
         }
 
         .menu-button:hover {
-            background-color: #3C4B55;
+            background-color: #3C4B55; /* Color más claro al pasar el mouse */
         }
 
         .menu-button i {
             font-size: 24px;
-            color: white;
+            color: white; /* Asegura que el icono sea blanco */
         }
 
-
-        p {
-            font-weight: bold; /* Texto en negrita por defecto */
-        }
-
-        .info p {
-            font-weight: normal; /* Quita la negrita para estos elementos p */
-        }
-
-        .info {
-            width: calc(100% - 100px); /* Calcula el ancho de la columna de texto */
-        }
-
-        .row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px; /* Espaciado entre filas */
-        }
-
-        .container {
-            max-width: 1200px; /* Ancho máximo del contenedor */
-            margin: 0 auto; /* Centra el contenedor en la página */
-        }
-
-        .arrendador-section {
-            margin-top: 100px;
-            background-color: #EAEAEA; /* Fondo gris oscuro */
-            padding-top: 20px;
-            border-radius: 10px; /* Bordes redondeados */
-            color: rgb(24, 24, 24); /* Color del texto en blanco */
-            margin-bottom: 20px; /* Espaciado inferior para separar del siguiente contenido */
-        }
-
-        .alojamiento-section {
-            background-color: #EAEAEA; /* Fondo gris oscuro */
-            border-radius: 10px; /* Bordes redondeados */
-            color: rgb(24, 24, 24); /* Color del texto en blanco */
-            margin-bottom: 20px; /* Espaciado inferior para separar del siguiente contenido */
-            padding: 20px;
-            width: 1200px;
-            margin-left: -11px;
-        }
-
-        .arrendador-section p {
-            color: rgb(24, 24, 24); /* Color del texto en blanco */
-        }
-
-        .arrendador-title {
-            margin-top: 30px; /* Margen superior de 30 píxeles */
-        }
-
-        .map-container {
-            width: 100%;
-            height: 305px; /* Ajusta la altura del mapa según lo necesites */
-            border-radius: 20px; /* Bordes redondeados */
-            overflow: hidden; /* Oculta cualquier contenido que se desborde */
-        }
-
-        .map-container iframe {
-            width: 100%;
-            height: 100%; /* El iframe debe ocupar todo el espacio del contenedor */
-            border: 0; /* Elimina el borde del iframe */
-        }
-
-        .slider-container {
-            width: 100%;
-            height: auto; /* Ajusta la altura del slider según lo necesites */
-            border-radius: 20px; /* Bordes redondeados */
-            overflow: hidden; /* Oculta cualquier contenido que se desborde */
-        }
-
-        .slider-container img {
-            width: 600px;
-            height: 300px;
-            object-fit: cover;
-            margin-right: 10px; /* Agrega un margen derecho de 20px entre las imágenes */
-            background-color: rgb(24, 24, 24);
-            cursor: grab;
-        }
-
-        .slider-container img:last-child {
-            margin-right: 0;
-        }
-
-        .slider-container img:active {
-            cursor: grabbing;
-        }
-
-
-        /* Enlaces de navegación del slider */
-        .slick-prev, .slick-next {
-            color: #fff;
-            font-size: 1.5em;
-            z-index: 1;
-        }
-
-        .circle {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            overflow: hidden;
-            background: #e0e0e0;
+        /* Barra con botones y búsqueda */
+        .top-bar {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: auto;
-        }
-        
-        .circle img {
-            width: 100%;
-            height: auto;
+            padding: 20px;
+            margin-top: 120px;
+            position: relative;
+            z-index: 1; /* Aseguramos que esté por debajo del header */
         }
 
-        .profile-info p {
-            font-size: 12px;
-            margin: 5px 0;
-        }
-
-        .photo {
-            width: 100%;
-            height: 250px;
-            background-color: #f0f0f0;
-            border-radius: 10px;
-            background-size: cover;
-            background-position: center;
-        }
-        .characteristic-bubble {
-            display: inline-block;
-            background-color: #85b9da;
-            color: #ffffff;
-            padding: 5px 10px;
-            border-radius: 15px;
-            margin: 2px;
+        .button {
+            padding: 10px 20px;
             font-size: 16px;
-        }
-        .slider-container {
-            margin-top: 30px;
-        }
-        
-        .rounded-bg-white {
-            background-color: white;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Añade una pequeña sombra para dar efecto de elevación */
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
         }
 
-        .precio-box {
-            background-color: white;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .button i {
+            margin-right: 10px;
         }
+
+        .button-filters {
+            background-color: #2E2E2E;
+            color: white;
+        }
+
+        .button-inicio, .button-mapa {
+            background-color: #D9D9D9;
+            color: black;
+        }
+
+        .button.selected {
+            background-color: #96B9CF;
+            color: white;
+        }
+
+        /* Barra de búsqueda */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #D9D9D9;
+            padding: 10px;
+            border-radius: 30px;
+            margin-left: 20px;
+            width: 300px;
+        }
+
+        .search-bar input {
+            border: none;
+            background-color: transparent;
+            padding: 5px;
+            outline: none;
+            flex: 1;
+        }
+
+        .search-bar i {
+            color: black;
+            margin-right: 10px;
+        }
+
+        /* Línea vertical entre los botones */
+        .vertical-line {
+            border-left: 2px solid #2E2E2E;
+            height: 40px;
+            margin: 0 20px;
+        }
+
+        /* Filtros panel estilo menú */
+        .filters-menu {
+            width: 500px;
+            background-color: #2E2E2E;
+            color: white;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            padding: 30px;
+            margin-top: 10px;
+            border-radius: 20px;
+            z-index: 3;
+            display: none;
+        }
+
+        .filters-menu.active {
+            display: block;
+        }
+
+        .filters-menu h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+        }
+
+        .filter-option {
+            background-color: #D9D9D9;
+            color: rgb(37, 37, 37);
+            border: none;
+            padding: 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: background-color 0.3s;
+        }
+
+        .filter-option.selected {
+            background-color: #96B9CF;
+            color: white;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap; /* Permite que las cards se muevan a la siguiente fila si se excede el espacio disponible */
+            justify-content: space-between; /* Espacio uniforme entre las cards */
+            gap: 20px; /* Espacio entre las cards */
+            margin: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: calc(25% - 20px); /* 4 cards por fila (100% dividido por 4) menos el gap */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .btn-detalles {
+            display: block;
+            background-color: #212F38;
+            color: white;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 30px;
+            margin-top: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            width: 100%; /* Hace que el botón ocupe todo el ancho */
+        }
+
+        .btn-detalles:hover {
+            background-color: #d6d6d6;
+            color: #212F38;
+            transition: background-color 0.3s ease;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #212F38;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-distrito {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #4c4c4c;
+            margin-bottom: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 3em;
+        }
+
+        .card-characteristics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .characteristic-bubble {
+            background-color: #96B9CF;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 30px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .card-price {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-price .price-value {
+            background-color: #789668;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        .checkbox-group-container {
+            display: flex; /* Coloca los checkboxes en una fila */
+            gap: 10px; /* Espacio entre los checkboxes */
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            appearance: none; /* Ocultar el ícono del checkbox */
+            display: none; /* Elimina la presencia del checkbox en pantalla */
+        }
+
+        .checkbox-group label {
+            background-color: #D9D9D9; /* Color inicial del fondo */
+            color: #252525; /* Color inicial del texto */
+            padding: 10px 20px; /* Ajuste de espaciado dentro del label */
+            border-radius: 30px; /* Bordes redondeados */
+            cursor: pointer; /* Cambio de cursor a pointer */
+            display: inline-block;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Efecto cuando se selecciona el checkbox */
+        .checkbox-group input[type="checkbox"]:checked + label {
+            background-color: #96B9CF; /* Fondo azul cuando está seleccionado */
+            color: white; /* Texto blanco cuando está seleccionado */
+        }
+        #mapa {
+            width: 100%;
+            height: 1000px;
+        }
+
+        #map-section {
+            display: none;
+            width: 100%;
+            height: 100vh; /* Ocupa todo el alto de la pantalla */
+        }
+
+/* Para tabletas (pantallas de ancho entre 768px y 1024px) */
+@media (max-width: 1024px) {
+    .cards-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Tres cards por fila */
+        gap: 20px; /* Espacio entre las cards */
+    }
+
+    .card {
+        width: calc(100% - 20px); /* Ocupa todo el ancho disponible con margen incluido */
+    }
+
+    /* Oculta la línea vertical en tabletas */
+    .vertical-line {
+        display: none; /* Oculta completamente la línea */
+    }
+
+    .sidebar {
+        width: 180px; /* Ajuste el ancho de la barra lateral */
+    }
+
+    .menu-button {
+        font-size: 20px; /* Tamaño más pequeño para tabletas */
+    }
+
+    .top-bar {
+        display: flex;
+        flex-direction: column; /* Cambia la dirección a columna */
+        align-items: center; /* Centra los elementos horizontalmente */
+        gap: 15px; /* Espacio entre los elementos */
+        padding: 20px;
+        margin-top: 120px;
+    }
+
+    .button {
+        width: 80%; /* Ajusta el ancho según tus necesidades */
+        text-align: center; /* Centrar el texto */
+        margin: 0 auto; /* Centra el botón horizontalmente */
+    }
+
+    .search-bar {
+        width: 80%; /* Ajusta el ancho según tus necesidades */
+        margin: 0 auto; /* Centra la barra de búsqueda horizontalmente */
+    }
+}
+
+/* Para móviles (pantallas de ancho máximo de 768px) */
+@media (max-width: 768px) {
+    .cards-container {
+        display: grid;
+        grid-template-columns: 1fr; /* Una card por fila */
+        gap: 15px; /* Espacio entre las cards */
+    }
+
+    .card {
+        width: 100%; /* Ocupa todo el ancho disponible */
+    }
+
+    /* Oculta la línea vertical en móviles */
+    .vertical-line {
+        display: none; /* Oculta completamente la línea */
+    }
+
+    .sidebar {
+        width: 150px; /* Ajuste el ancho de la barra lateral */
+        padding: 5px; /* Reducir el padding */
+    }
+
+    .menu-button {
+        font-size: 18px; /* Tamaño más pequeño para móviles */
+        padding: 8px; /* Ajustar el relleno */
+    }
+
+    .button {
+        font-size: 14px; /* Reducir el tamaño de fuente de los botones */
+        padding: 6px 12px; /* Ajuste el relleno */
+        height: 40px;
+    }
+
+    .top-bar {
+        flex-direction: column; /* Cambiar a una columna para móviles */
+        align-items: stretch; /* Alinear los elementos para ocupar todo el ancho */
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .search-bar {
+        width: 80%; /* Ajusta el ancho según tus necesidades */
+        margin: 0 auto; /* Centra la barra de búsqueda horizontalmente */
+    }
+}
+
+
     </style>
 </head>
 <body>
@@ -291,161 +497,363 @@
     </div>
 
 
-    <div class="container">
-        <!-- Información del arrendador -->
-        <p class="semilight" style=" color: #85b9da;margin-top: 20px;">Información del Arrendador</p>
-        <div class="row arrendador-section">
-            <div class="col">
-                <div class="row">
-                    <div class="col-auto">
-                        <div class="circle" style="margin-left: 30px;margin-right: 30px;">
-                            {% if usuario.foto_perfil %}
-                                <img src="{{ usuario.foto_perfil.url }}" alt="Foto de perfil">
-                            {% else %}
-                                <img src="{% static 'myapp/images/Imagenes StayHere/default_profile.png' %}" alt="Foto de perfil">
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="col info">
-                        <p style="font-size: 17px; color: #242424;margin-top: 20px;"> <strong>Nombre:</strong> {{ alojamiento.usuario.nombre }}</p>
-                        <p style="font-size: 17px; color: #242424;margin-top: 20px;"> <strong>Edad: </strong>{{ alojamiento.usuario.edad }}</p>
-                        <p style="font-size: 17px; color: #242424;margin-top: 20px;"> <strong>Numero: </strong>{{ alojamiento.usuario.telefono }}</p>
-                    </div>
-                    <div class="col">
-                        <div class="col" style="text-align: end;margin-right: 30px;">
-                            <a href="{% url 'arrendador_profile' alojamiento.usuario.id %}" class="btn" style="background-color: rgb(45, 90, 92); color: whitesmoke;">Ver perfil</a>
-                            {% if alojamiento.usuario.mostrar_whatsapp %}
-                                <a href="https://wa.me/{{ alojamiento.usuario.telefono }}?text=Quisiera%20saber%20mas%20sobre%20este%20alojamiento🏠" class="btn btn-success">
-                                    <i class="bi bi-whatsapp"></i> Contactar
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Barra de botones y búsqueda -->
+    <div class="top-bar">
+        <!-- Botón de Filtros -->
+        <button id="filters-button" class="button button-filters">
+            <i class="fas fa-filter"></i> Filtros
+        </button>
+
+        <!-- Línea vertical -->
+        <div class="vertical-line"></div>
+
+        <!-- Botones Inicio y Mapa -->
+        <button class="button button-inicio selected" id="inicio-btn">Inicio</button>
+        <button class="button button-mapa" id="map-link">Mapa</button>
+
+        <!-- Barra de búsqueda -->
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Buscar...">
         </div>
-        <hr>
-
-        <!-- Información del alojamiento -->
-        <div class="col">
-            <p class="semilight" style=" color: #85b9da;margin-top: 20px;">Información del Alojamiento</p>
-        </div>
-        <div class="alojamiento-section">
-            <div id="container" class="row" style="margin-bottom: -30px;">
-                <div class="col">
-                    <p><strong class="light" style="font-size: 13px; color: #242424;margin-top: 20px;">Ubicación</strong></p>
-                </div>
-                <div class="col">
-                    <p><strong class="light" style="font-size: 13px; color: #242424;margin-top: 20px;">Imágenes del alojamiento</strong></p>
-                </div>
-            </div>
-            <div class="row" >
-                <div class="col-6">
-                    <div class="map-container">
-                        <iframe id="mapa" width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q={{ alojamiento.latitud }},{{ alojamiento.longitud }}&amp;t=&amp;z=17&amp;ie=UTF8&amp;iwloc=&amp;output=embed"></iframe>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="slider-container">
-                        {% for imagen in alojamiento.imagenes.all %}
-                        <div class="image-container"><img src="{{ imagen.imagen.url }}" class="img-fluid" alt="Image"></div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-            <div id="container" class="row" style="margin-top: 30px;margin-bottom: -10px;">
-                <div class="col">
-                    <p><strong class="light" style="font-size: 13px; color: #242424;">Descripción</strong></p>
-                </div>
-                <div class="col-12" style="margin-bottom: 30px;">
-                    <div class="rounded-bg-white">
-                        {{ alojamiento.descripcion }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col">
-                    <p><strong class="light" style="font-size: 13px; color: #242424;">Precio</strong></p>
-                </div>
-                <div class="col-12" >
-                    <div class="precio-box" >
-                        <p>S/. {{ alojamiento.precio }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-            <div id="container" class="row" style="margin-top: 30px;margin-bottom: -10px;">
-                <div class="col">
-                    <p><strong class="light" style="font-size: 13px; color: #242424;">Detalles</strong></p>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <div class="">
-                        {% for detalle in alojamiento.caracteristicas %}
-                            <span class="characteristic-bubble">{{ detalle }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <!-- JS de Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <!-- Menú de Filtros justo debajo del botón de Filtros -->
+    <div id="filters-menu" class="filters-menu">
+        <h3>Filtra en base a tus gustos o necesidades:</h3>
+        <div class="filter-group">
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Habitación Personal" name="Habitación Personal" class="filtro">
+                <label for="Habitación Personal">Habitación Personal</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Habitación Doble" name="Habitación Doble" class="filtro">
+                <label for="Habitación Doble">Habitación Doble</label>
+            </div>
 
-        // Botón de menú lateral
-        const menuButton = document.getElementById('menuButton');
-        const sidebar = document.getElementById('sidebar');
-        let sidebarVisible = false;
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Petfriendly" name="Petfriendly" class="filtro">
+                <label for="Petfriendly">Petfriendly</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Baño Propio" name="Baño Propio" class="filtro">
+                <label for="Baño Propio">Baño Propio</label>
+            </div>
 
-        menuButton.addEventListener('click', () => {
-            if (sidebarVisible) {
-                sidebar.style.right = '-220px';
-                menuButton.innerHTML = '<i class="fas fa-bars"></i>';
-            } else {
-                sidebar.style.right = '10px'; 
-                menuButton.innerHTML = '<i class="fas fa-times"></i>';
-            }
-            sidebarVisible = !sidebarVisible;
-        });
-    </script>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Wi-Fi" name="Wi-Fi" class="filtro">
+                <label for="Wi-Fi">Wi-Fi</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Estacionamiento" name="Estacionamiento" class="filtro">
+                <label for="Estacionamiento">Estacionamiento</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Espacio de Cocina" name="Espacio de Cocina" class="filtro">
+                <label for="Espacio de Cocina">Espacio de Cocina</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Agua caliente" name="Agua caliente" class="filtro">
+                <label for="Agua caliente">Agua caliente</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Amueblado" name="Amueblado" class="filtro">
+                <label for="Amueblado">Amueblado</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Zonas Comunes" name="Zonas Comunes" class="filtro">
+                <label for="Zonas Comunes">Zonas Comunes</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Tendedero" name="Tendedero" class="filtro">
+                <label for="Tendedero">Tendedero</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <input type="checkbox" id="Restaurante" name="Restaurante" class="filtro">
+                <label for="Restaurante">Restaurante</label>
+            </div>
+            <!-- Duplicados eliminados -->
+        </div>
+        <br>    
+        
+        <h3>Filtra en base a tu presupuesto:</h3>
+        <div class="range-slider">
+            <div>
+                <label for="minPriceRange">Min:</label>
+                <input type="range" class="form-range" id="minPriceRange" min="250" max="1500" step="50" value="250">
+                <span id="minPriceRangeValue">250</span>
+            </div>
+            <div>
+                <label for="maxPriceRange">Max:</label>
+                <input type="range" class="form-range" id="maxPriceRange" min="250" max="1500" step="50" value="1500">
+                <span id="maxPriceRangeValue">1500</span>
+            </div>
+    </div>
+</div>
 
-    <script>
-        // Función para agregar el marcador de casa al mapa
-        function agregarMarcadorCasa() {
-            var mapa = document.getElementById('mapa');
-            mapa.contentWindow.postMessage('{"event":"addMarker","lat": -12.043954147829243, "lng": -76.95126047028485, "icon": "https://maps.google.com/mapfiles/kml/shapes/homegardenbusiness.png"}', '*');
+ <!-- Contenedor de Cards -->
+ <div class="cards-container" id="cards-container">
+    {% for alojamiento in alojamientos %}
+    <div class="card">
+        {% if alojamiento.imagenes.first %}
+        <img src="{{ alojamiento.imagenes.first.imagen.url }}" alt="Imagen de la Habitación">
+        {% else %}
+        <img src="https://via.placeholder.com/200" alt="Imagen no disponible">
+        {% endif %}
+        
+        <div class="card-content">
+            <div class="card-title">
+                {{ alojamiento.usuario.nombre|truncatechars:20 }}
+            </div>
+            <div class="card-distrito"><strong>Distrito:</strong> {{ alojamiento.distrito }}</div>
+            <div class="card-description">{{ alojamiento.descripcion|truncatechars:100 }}</div>
+            <div class="card-characteristics">
+                {% for caracteristica in alojamiento.caracteristicas|slice:":3" %}
+                <span class="characteristic-bubble">{{ caracteristica }}</span>
+                {% endfor %}
+                {% if alojamiento.caracteristicas|length > 3 %}
+                <span class="characteristic-bubble">más...</span>
+                {% endif %}
+            </div>
+            <div class="card-price">
+                Precio: <span class="price-value">S/. {{ alojamiento.precio }}</span>
+            </div>
+            <a href="{% url 'alojamiento_detalle' alojamiento.id %}" class="btn-detalles">Ver más detalles</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Contenedor para el mensaje cuando no hay resultados -->
+<div id="no-results-message" style="display: none; text-align: center; font-size: 18px; margin: 20px;">
+    Aún no hay alojamientos con esas características.
+</div>
+
+<!-- Sección del mapa -->
+<div id="map-section">
+    <div id="mapa"></div>
+</div>
+
+
+<!-- API de Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik&callback=initMap" async defer></script>
+
+<script>
+
+// Función para verificar si hay resultados
+function checkNoResults() {
+    const cards = document.querySelectorAll('.card');
+    let cardsVisible = 0;
+
+    cards.forEach(card => {
+        if (card.style.display !== 'none') {
+            cardsVisible++;  // Contar tarjetas visibles
         }
-        // Llama a la función después de que el iframe se haya cargado
-        window.addEventListener('load', agregarMarcadorCasa);
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybBogGzog5GoCwJAIh3z9F5hXY56Bg" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-Y4oB8i+7lUZ65VOtq5r6bPHWVJoGrhPpXT7W9+ZSc3Lsw2gFkxiByiT/R" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    });
 
-    <script>
-        $(document).ready(function(){
-            $('.slider-container').slick({
-                infinite: false,
-                slidesToShow: 2,
-                slidesToScroll: 1,
-                dots: true,
-                arrows: true,
-                prevArrow: '<button type="button" class="slick-prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button>',
-                nextArrow: '<button type="button" class="slick-next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span></button>'
-            });
+    const noResultsMessage = document.getElementById('no-results-message');
+    if (cardsVisible === 0) {
+        noResultsMessage.style.display = 'block';
+    } else {
+        noResultsMessage.style.display = 'none';
+    }
+}
+
+// Filtro de características
+const filtersButton = document.getElementById('filters-button');
+const filtersMenu = document.getElementById('filters-menu');
+let filtersVisible = false;
+
+// Mostrar/Ocultar menú de filtros justo debajo del botón de "Filtros"
+filtersButton.addEventListener('click', () => {
+    if (filtersVisible) {
+        filtersMenu.classList.remove('active');
+    } else {
+        const buttonRect = filtersButton.getBoundingClientRect();
+        filtersMenu.style.left = `${buttonRect.left}px`;
+        filtersMenu.style.top = `${buttonRect.bottom + window.scrollY}px`;
+        filtersMenu.classList.add('active');
+    }
+    filtersVisible = !filtersVisible;
+});
+
+// Cerrar el menú de filtros al hacer clic fuera de él
+document.addEventListener('click', (event) => {
+    if (!filtersMenu.contains(event.target) && !filtersButton.contains(event.target)) {
+        filtersMenu.classList.remove('active');
+        filtersVisible = false;
+    }
+});
+
+// Botón de menú lateral
+const menuButton = document.getElementById('menuButton');
+const sidebar = document.getElementById('sidebar');
+let sidebarVisible = false;
+
+menuButton.addEventListener('click', () => {
+    if (sidebarVisible) {
+        sidebar.style.right = '-220px';
+        menuButton.innerHTML = '<i class="fas fa-bars"></i>';
+    } else {
+        sidebar.style.right = '10px';
+        menuButton.innerHTML = '<i class="fas fa-times"></i>';
+    }
+    sidebarVisible = !sidebarVisible;
+});
+
+// Selección única de cards (evitar duplicaciones)
+const cards = document.querySelectorAll('.card');
+
+// Filtro de características
+const checkboxes = document.querySelectorAll('.filtro');
+checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener('change', filtrarAlojamientos);
+});
+
+function filtrarAlojamientos() {
+    const filtrosSeleccionados = Array.from(checkboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.name.toLowerCase());
+
+    cards.forEach((card) => {
+        const textoCard = card.textContent.toLowerCase();
+        let mostrarCard = true;
+
+        filtrosSeleccionados.forEach((filtro) => {
+            if (!textoCard.includes(filtro)) {
+                mostrarCard = false;
+            }
         });
-    </script>
+
+        if (mostrarCard || filtrosSeleccionados.length === 0) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    checkNoResults(); // Verificar si hay resultados
+}
+
+// Funcionalidad de búsqueda
+const searchBar = document.querySelector('.search-bar input');
+
+searchBar.addEventListener('input', function () {
+    const searchText = searchBar.value.toLowerCase();
+
+    cards.forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const description = card.querySelector('.card-description').textContent.toLowerCase();
+        const distrito = card.querySelector('.card-distrito').textContent.toLowerCase(); // Obtener el distrito
+
+        if (title.includes(searchText) || description.includes(searchText) || distrito.includes(searchText)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    checkNoResults();
+});
+
+// Funcionalidad de filtro de precios
+const minPriceRange = document.getElementById('minPriceRange');
+const maxPriceRange = document.getElementById('maxPriceRange');
+const minPriceDisplay = document.getElementById('minPriceRangeValue');
+const maxPriceDisplay = document.getElementById('maxPriceRangeValue');
+
+minPriceRange.addEventListener('input', function () {
+    minPriceDisplay.textContent = minPriceRange.value;
+    filterByPrice();
+});
+
+maxPriceRange.addEventListener('input', function () {
+    maxPriceDisplay.textContent = maxPriceRange.value;
+    filterByPrice();
+});
+
+function filterByPrice() {
+    const minPrice = parseFloat(minPriceRange.value);
+    const maxPrice = parseFloat(maxPriceRange.value);
+
+    cards.forEach(card => {
+        const priceText = card.querySelector('.price-value').textContent;
+        const price = parseFloat(priceText.replace('S/.', '').trim());
+
+        if (price >= minPrice && price <= maxPrice) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    checkNoResults();
+}
+
+// Inicialización del mapa
+function initMap() {
+    const map = new google.maps.Map(document.getElementById('mapa'), {
+        zoom: 16,
+        center: { lat: -12.043954, lng: -76.951260 }  // Coordenadas centrales (ajusta según la ubicación general)
+    });
+
+    // Obtener las coordenadas pasadas desde el backend
+    const coordenadas = JSON.parse('{{ coordenadas_json|escapejs }}');
+
+    // Iterar sobre las coordenadas y agregar marcadores
+    coordenadas.forEach(function (coord) {
+        const marker = new google.maps.Marker({
+            position: { lat: coord.latitud, lng: coord.longitud },
+            map: map,
+            title: coord.distrito  // Cambiado de coord.nombre a coord.distrito
+        });
+
+        // Añadir un evento 'click' al marcador para redirigir a la página de detalles del alojamiento
+        marker.addListener('click', function () {
+            window.location.href = '{% url "alojamiento_detalle" 0 %}'.replace('/0/', `/${coord.id}/`);
+        });
+    });
+}
+
+// Vinculamos la función de verificación en cada cambio
+minPriceRange.addEventListener('input', function () {
+    minPriceDisplay.textContent = minPriceRange.value;
+    filterByPrice();
+});
+
+maxPriceRange.addEventListener('input', function () {
+    maxPriceDisplay.textContent = maxPriceRange.value;
+    filterByPrice();
+});
+
+// Filtrar alojamientos también actualiza el chequeo de resultados
+checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener('change', filtrarAlojamientos);
+});
+    
+document.addEventListener('DOMContentLoaded', function () {
+    const mapLink = document.getElementById("map-link");
+    const inicioBtn = document.getElementById("inicio-btn");
+    const cardsContainer = document.getElementById("cards-container");
+    const mapSection = document.getElementById("map-section");
+
+    mapLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        cardsContainer.style.display = "none";
+        mapSection.style.display = "block";
+        mapLink.classList.add("selected");
+        inicioBtn.classList.remove("selected");
+        initMap();
+    });
+
+    inicioBtn.addEventListener('click', function () {
+        cardsContainer.style.display = "flex";
+        mapSection.style.display = "none";
+        inicioBtn.classList.add("selected");
+        mapLink.classList.remove("selected");
+    });
+});
+
+</script>
 </body>
 </html>
