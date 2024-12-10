@@ -21,6 +21,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
 from datetime import datetime
+from .models import Usuario
 import random
 import string
 from io import BytesIO
@@ -28,6 +29,10 @@ from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
 from django.core.cache import cache
 from django.conf import settings
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.utils.decorators import method_decorator
+
 
 def logout_view(request):
     logout(request)
@@ -63,58 +68,44 @@ def alojamiento_detalle_view(request, alojamiento_id):
     alojamiento = get_object_or_404(Alojamiento, id=alojamiento_id)
     return render(request, 'myapp/habitaciones.html', {'alojamiento': alojamiento})
 
-from django.contrib.auth import authenticate, login
-from django.http import JsonResponse
-from django.shortcuts import render
-from django.contrib import messages
-from django.core.cache import cache
-
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email')  # Usa .get() para manejar casos donde falte el campo
-        password = request.POST.get('password')
-        user_captcha = request.POST.get('captcha')
-
-        # Validar campos
-        if not email or not password or not user_captcha:
-            return JsonResponse({'success': False, 'error': 'Todos los campos son obligatorios.'})
-
+        email = request.POST['email']
+        password = request.POST['password']
+        user_captcha = request.POST['captcha']
+        
         # Verificar el captcha almacenado en caché
         captcha_stored = cache.get(request.session.session_key)
         if user_captcha != captcha_stored:
             return JsonResponse({'success': False, 'error': 'Captcha incorrecto'})
 
-        # Autenticar usuario
         user = authenticate(request, username=email, password=password)
         if user is not None:
-            if user.is_verified:
-                # Usuario verificado: iniciar sesión y redirigir
-                login(request, user)
-                messages.success(request, 'Logueo exitoso')
-
-                # Manejo basado en tipo de usuario
-                if user.is_superuser:
-                    return JsonResponse({'success': True, 'redirect': '/admin_users'})
-                if user.tipo_usuario.lower() == 'estudiante':
-                    return JsonResponse({'success': True, 'redirect': '/home'})
-                elif user.tipo_usuario.lower() == 'arrendador':
+            login(request, user)
+            messages.success(request, 'Logueo exitoso')
+            
+            if user.is_superuser:
+                return JsonResponse({'success': True, 'redirect': '/admin_users'})
+        
+            # Verifica el tipo de usuario y el estado de verificación
+            # Verificar el tipo de usuario y redirigir adecuadamente
+            if user.tipo_usuario.lower() == 'estudiante':
+                if user.is_verified:
                     return JsonResponse({'success': True, 'redirect': '/home'})
                 else:
-                    return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
-            else:
-                # Usuario no verificado
-                if user.tipo_usuario.lower() == 'estudiante':
+                    # Siempre mostrar el modal si no está verificado
                     return JsonResponse({'success': False, 'show_verification_modal': True})
-                elif user.tipo_usuario.lower() == 'arrendador':
-                    return JsonResponse({'success': False, 'show_verification_message': True})
+                    
+            elif user.tipo_usuario.lower() == 'arrendador':
+                if user.is_verified:
+                    return JsonResponse({'success': True, 'redirect': '/home'})  # Redirigir a home si es arrendador y verificado
                 else:
-                    return JsonResponse({'success': False, 'error': 'Tipo de usuario desconocido'})
+                    return JsonResponse({'success': False, 'redirect': '/arrendador_verification_message'})  # Redirigir a la página de mensaje si no está verificado
+
         else:
             return JsonResponse({'success': False, 'error': 'Correo o contraseña incorrectos'})
 
-    # Renderizar página de login para solicitudes GET
     return render(request, 'myapp/login.html')
-
 
 @login_required
 def nuevo_view(request):
@@ -322,27 +313,19 @@ def editar_alojamiento_view(request, alojamiento_id):
 # --------------------------- CODIGOS DE VALIDACION ---------------------------
 @csrf_exempt
 def verification_code_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')  # Asegúrate de que el email se envía desde el modal
-        verification_code = request.POST.get('verification_code')
-
-        if not email or not verification_code:
-            return JsonResponse({'success': False, 'error': 'Faltan datos para la verificación.'})
-
-        try:
-            # Buscar al usuario por su correo electrónico
-            user = Usuario.objects.get(email=email)  # Cambia a tu modelo personalizado
-
-            if user.verification_code == verification_code:
-                user.is_verified = True
-                user.save()
-                return JsonResponse({'success': True, 'redirect': '/home'})
+    # Asegúrate de que el usuario esté autenticado
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            code_entered = request.POST.get('verification_code')
+            if code_entered == request.user.verification_code:
+                request.user.is_verified = True
+                request.user.save()
+                messages.success(request, 'Correo verificado exitosamente.')
+                return JsonResponse({'success': True})  # Retornar éxito si la verificación es correcta
             else:
                 return JsonResponse({'success': False, 'error': 'Código de verificación incorrecto.'})
-        except Usuario.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Usuario no encontrado.'})
-    
-    return JsonResponse({'success': False, 'error': 'Método no permitido.'})
+
+    return JsonResponse({'success': False, 'error': 'Usuario no autenticado.'})
 
 def arrendador_verification_message_view(request):
     return render(request, 'myapp/arrendador_verification_message.html')
@@ -699,7 +682,31 @@ def login_usuario(request):
     else:
         return Response({'success': False, 'message': 'Credenciales incorrectas'}, status=status.HTTP_400_BAD_REQUEST)
 
-    
+
+@api_view(['PUT'])
+@parser_classes([MultiPartParser, FormParser])
+@login_required
+def actualizar_nombre_y_foto(request):
+    usuario = request.user
+
+    nombre = request.data.get('nombre')
+    foto_perfil = request.FILES.get('foto_perfil')
+
+    if not nombre and not foto_perfil:
+        return Response({'error': 'Debe proporcionar al menos un campo para actualizar'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if nombre:
+        usuario.nombre = nombre
+    if foto_perfil:
+        usuario.foto_perfil = foto_perfil
+
+    usuario.save()
+
+    return Response({
+        'message': 'Perfil actualizado exitosamente',
+        'nombre': usuario.nombre,
+        'foto_perfil': usuario.foto_perfil.url if usuario.foto_perfil else None
+    }, status=status.HTTP_200_OK)
 
 
 class UsuarioDetailByEmail(generics.RetrieveAPIView):
@@ -733,3 +740,4 @@ class AlojamientoDetail(generics.RetrieveUpdateDestroyAPIView):
 class ImagenAlojamientoListCreate(generics.ListCreateAPIView):
     queryset = ImagenAlojamiento.objects.all()
     serializer_class = ImagenAlojamientoSerializer
+
