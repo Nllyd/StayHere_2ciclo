@@ -15,15 +15,11 @@ class UsuarioSerializer(serializers.ModelSerializer):
         validated_data['password'] = make_password(password)  # Cifrar la contraseña
         return super().create(validated_data)
 
-        def update(self, instance, validated_data):
-        # Si hay un campo de contraseña, lo ciframos
-        if 'password' in validated_data:
-            instance.password = make_password(validated_data.pop('password'))
-        # Actualizamos los demás campos
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
+class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'foto_perfil']
+
 
 class AlojamientoSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
