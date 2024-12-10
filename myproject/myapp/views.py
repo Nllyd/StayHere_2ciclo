@@ -29,9 +29,8 @@ from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
 from django.core.cache import cache
 from django.conf import settings
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
-from django.utils.decorators import method_decorator
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 
 def logout_view(request):
@@ -621,6 +620,41 @@ def get_csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
 
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def actualizar_perfil(request):
+    user = request.user  # Obtenemos el usuario autenticado
+    data = request.data  # Datos enviados en la solicitud
+
+    # Validar si hay datos para actualizar
+    if not data:
+        return Response(
+            {'success': False, 'message': 'No se enviaron datos para actualizar'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Crear un serializador con los datos nuevos
+    serializer = UsuarioSerializer(user, data=data, partial=True)  # partial=True permite actualizar solo algunos campos
+
+    if serializer.is_valid():
+        serializer.save()  # Guardar los cambios en el modelo
+        csrf_token = get_token(request)  # Regenerar el token CSRF
+        return Response(
+            {
+                'success': True,
+                'message': 'Perfil actualizado exitosamente',
+                'data': serializer.data,
+                'csrftoken': csrf_token,  # Incluir el nuevo token CSRF
+            },
+            status=status.HTTP_200_OK
+        )
+    else:
+        return Response(
+            {'success': False, 'message': 'Error en los datos', 'errors': serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        
 @csrf_exempt
 @api_view(['POST'])
 def create_usuario(request):
@@ -682,31 +716,7 @@ def login_usuario(request):
     else:
         return Response({'success': False, 'message': 'Credenciales incorrectas'}, status=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(['PUT'])
-@parser_classes([MultiPartParser, FormParser])
-@login_required
-def actualizar_nombre_y_foto(request):
-    usuario = request.user
-
-    nombre = request.data.get('nombre')
-    foto_perfil = request.FILES.get('foto_perfil')
-
-    if not nombre and not foto_perfil:
-        return Response({'error': 'Debe proporcionar al menos un campo para actualizar'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if nombre:
-        usuario.nombre = nombre
-    if foto_perfil:
-        usuario.foto_perfil = foto_perfil
-
-    usuario.save()
-
-    return Response({
-        'message': 'Perfil actualizado exitosamente',
-        'nombre': usuario.nombre,
-        'foto_perfil': usuario.foto_perfil.url if usuario.foto_perfil else None
-    }, status=status.HTTP_200_OK)
+    
 
 
 class UsuarioDetailByEmail(generics.RetrieveAPIView):
@@ -740,4 +750,3 @@ class AlojamientoDetail(generics.RetrieveUpdateDestroyAPIView):
 class ImagenAlojamientoListCreate(generics.ListCreateAPIView):
     queryset = ImagenAlojamiento.objects.all()
     serializer_class = ImagenAlojamientoSerializer
-
