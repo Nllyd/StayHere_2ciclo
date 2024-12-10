@@ -38,6 +38,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # Endpoints para Flutter
+    path('api/usuarios/actualizar/', actualizar_perfil, name='actualizar_perfil'),
     path('api/login/', views.login_usuario, name='api-login'),
     path('api/usuarios/', views.UsuarioListCreate.as_view(), name='usuario-list-create'),
     path('api/usuarios/email/<str:email>/', views.UsuarioDetailByEmail.as_view(), name='usuario-detail-email'),
