@@ -622,16 +622,25 @@ def get_csrf_token(request):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
 def actualizar_perfil(request):
-    user = request.user  # Obtenemos el usuario autenticado
-    data = request.data  # Datos enviados en la solicitud
+    # Obtener datos enviados en la solicitud
+    data = request.data
 
-    # Validar si hay datos para actualizar
-    if not data:
+    # Validar que se haya enviado un email
+    email = data.get('email')
+    if not email:
         return Response(
-            {'success': False, 'message': 'No se enviaron datos para actualizar'},
+            {'success': False, 'message': 'El email es requerido para identificar al usuario'},
             status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # Obtener al usuario por email
+        user = Usuario.objects.get(email=email)
+    except Usuario.DoesNotExist:
+        return Response(
+            {'success': False, 'message': 'Usuario no encontrado'},
+            status=status.HTTP_404_NOT_FOUND
         )
 
     # Crear un serializador con los datos nuevos
@@ -639,13 +648,11 @@ def actualizar_perfil(request):
 
     if serializer.is_valid():
         serializer.save()  # Guardar los cambios en el modelo
-        csrf_token = get_token(request)  # Regenerar el token CSRF
         return Response(
             {
                 'success': True,
                 'message': 'Perfil actualizado exitosamente',
                 'data': serializer.data,
-                'csrftoken': csrf_token,  # Incluir el nuevo token CSRF
             },
             status=status.HTTP_200_OK
         )
@@ -654,6 +661,7 @@ def actualizar_perfil(request):
             {'success': False, 'message': 'Error en los datos', 'errors': serializer.errors},
             status=status.HTTP_400_BAD_REQUEST
         )
+
         
 @csrf_exempt
 @api_view(['POST'])
