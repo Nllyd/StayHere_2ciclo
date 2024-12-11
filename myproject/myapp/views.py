@@ -29,6 +29,9 @@ from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
 from django.core.cache import cache
 from django.conf import settings
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 
 def logout_view(request):
     logout(request)
@@ -617,6 +620,49 @@ def get_csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
 
+
+@api_view(['PUT'])
+def actualizar_perfil(request):
+    # Obtener datos enviados en la solicitud
+    data = request.data
+
+    # Validar que se haya enviado un email
+    email = data.get('email')
+    if not email:
+        return Response(
+            {'success': False, 'message': 'El email es requerido para identificar al usuario'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # Obtener al usuario por email
+        user = Usuario.objects.get(email=email)
+    except Usuario.DoesNotExist:
+        return Response(
+            {'success': False, 'message': 'Usuario no encontrado'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Crear un serializador con los datos nuevos
+    serializer = UsuarioSerializer(user, data=data, partial=True)  # partial=True permite actualizar solo algunos campos
+
+    if serializer.is_valid():
+        serializer.save()  # Guardar los cambios en el modelo
+        return Response(
+            {
+                'success': True,
+                'message': 'Perfil actualizado exitosamente',
+                'data': serializer.data,
+            },
+            status=status.HTTP_200_OK
+        )
+    else:
+        return Response(
+            {'success': False, 'message': 'Error en los datos', 'errors': serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+        
 @csrf_exempt
 @api_view(['POST'])
 def create_usuario(request):

@@ -6,6 +6,7 @@ class RequireVerifiedUserMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated and not request.user.is_verified:
-            if request.path not in ['/verificacion/', '/logout/']:  # Rutas permitidas
-                return redirect('/verificacion/')  # Redirigir a la página de verificación
+            if not request.is_ajax():  # Evitar redirección para solicitudes AJAX
+                if request.path not in ['/verificacion/', '/logout/']:  # Rutas permitidas
+                    return redirect('/verificacion/')  # Redirigir a la página de verificación
         return self.get_response(request)

@@ -15,6 +15,12 @@ class UsuarioSerializer(serializers.ModelSerializer):
         validated_data['password'] = make_password(password)  # Cifrar la contraseña
         return super().create(validated_data)
 
+class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'foto_perfil']
+
+
 class AlojamientoSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
     primera_imagen = serializers.SerializerMethodField()

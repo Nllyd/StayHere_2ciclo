@@ -198,12 +198,12 @@
     
     <div class="sidebar" id="sidebar">
         {% if user.is_authenticated %}
-            {% if user.tipo_usuario == 'Arrendador' %}
+            {% if user.tipo_usuario|lower == 'arrendador' %}
                 <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
                 <a href="{% url 'nuevo' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
                 <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
                 <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
-            {% elif user.tipo_usuario == 'Estudiante' %}
+            {% elif user.tipo_usuario|lower == 'estudiante' %}
                 <a href="{% url 'user' %}"><i class="fas fa-user"></i> Mi perfil</a>
                 <a href="{% url 'home' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
                 <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesion</a>
@@ -215,8 +215,7 @@
             {% endif %}
         {% else %}
             <a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesion</a>
-            <a href="{% url 'login' %}"><i class="fas fa-home"></i> Ofrecer Habitaciones</a>
-            <a href="{% url 'login' %}"><i class="fas fa-search"></i> Buscar Habitacion</a>
+             <a href="#"><i class="fas fa-question-circle"></i> ¿Dudas?</a>
         {% endif %}
     </div>
 
@@ -308,33 +307,32 @@
         $(document).ready(function() {
             const csrftoken = $('[name=csrfmiddlewaretoken]').val();
 
-        $('form').on('submit', function(event) {
-            event.preventDefault();
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'),
-                data: $(this).serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        if (response.show_verification_modal) {
-                            // Asegúrate de que el modal esté visible
-                            $('#verificationModal').modal('show');
-                        } else if (response.redirect) {
-                            window.location.href = response.redirect;
+            $('form').on('submit', function(event) {
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: $(this).serialize() + '&csrfmiddlewaretoken=' + csrftoken,
+                    success: function(response) {
+                        if (response.success) {
+                            if (response.show_verification_modal) {
+                                $('#verificationModal').modal('show'); // Mostrar el modal
+                            } else if (response.redirect) {
+                                window.location.href = response.redirect;
+                            }
+                        } else {
+                            if (response.redirect) {
+                                window.location.href = response.redirect;
+                            } else {
+                                alert(response.error);
+                            }
                         }
-                    } else if (response.show_verification_modal) {
-                        // Mostrar el modal aunque el éxito sea "false"
-                        $('#verificationModal').modal('show');
-                    } else {
-                        alert(response.error || 'Error desconocido.');
+                    },
+                    error: function(xhr) {
+                        alert('Error en el servidor. Intenta más tarde.');
                     }
-                },
-                error: function() {
-                    alert('Error en el servidor. Intenta más tarde.');
-                }
+                });
             });
-        });
-
 
             $('#verificationForm').on('submit', function(event) {
                 event.preventDefault();
